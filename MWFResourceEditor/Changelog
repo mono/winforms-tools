@@ -1,0 +1,5 @@
+2005-04-01  Alexander Olk  <xenomorph2@onlinehome.de>
+
+	* AboutDialog.cs, ContentStruct.cs, ContentType.cs, ImagePanel.cs,
+	  MainForm.cs, TextEntryDialog.cs, TextPanel.cs:
+	  Initial import
