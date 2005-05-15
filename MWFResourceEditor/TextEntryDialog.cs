@@ -1,3 +1,6 @@
+// Authors:
+//	Alexander Olk, <xenomorph2@onlinehome.de>
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -63,41 +66,35 @@ namespace MWFResourceEditor
 		
 		public string Message
 		{
-			set
-			{
+			set {
 				message = value;
 				messageLabel.Text = message;
 			}
 			
-			get
-			{
+			get {
 				return message;
 			}
 		}
 		
 		public string DialogResultText
 		{
-			set
-			{
+			set {
 				dialogResultText = value;
 			}
 			
-			get
-			{
+			get {
 				return dialogResultText;
 			}
 		}
 		
 		public string DialogTitle
 		{
-			set
-			{
+			set {
 				dialogTitle = value;
 				Text = value;
 			}
 			
-			get
-			{
+			get {
 				return dialogTitle;
 			}
 		}
@@ -132,3 +129,4 @@ namespace MWFResourceEditor
 		}
 	}
 }
+

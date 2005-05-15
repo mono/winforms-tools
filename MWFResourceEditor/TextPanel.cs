@@ -1,3 +1,6 @@
+// Authors:
+//	Alexander Olk, <xenomorph2@onlinehome.de>
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -7,6 +10,7 @@ namespace MWFResourceEditor
 	public class TextPanel : Panel
 	{
 		private TextBox contentTextBox;
+		private Button acceptButton;
 		
 		private MainForm parentForm;
 		
@@ -15,38 +19,48 @@ namespace MWFResourceEditor
 			this.parentForm = parentForm;
 			
 			contentTextBox = new TextBox( );
+			acceptButton = new Button( );
 			
 			SuspendLayout( );
 			
+			Dock = DockStyle.Fill;
+			DockPadding.All = 5;
+			
+			contentTextBox.Location = new Point( 3, 30 );
+			ContentTextBox.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+			| System.Windows.Forms.AnchorStyles.Left )
+			| System.Windows.Forms.AnchorStyles.Right ) ) );
+			contentTextBox.Size = new Size( 586, 180 );
 			contentTextBox.Multiline = true;
-			contentTextBox.Dock = DockStyle.Fill;
 			contentTextBox.AcceptsReturn = true;
 			contentTextBox.AcceptsTab = true;
 			contentTextBox.ScrollBars = ScrollBars.Vertical | ScrollBars.Horizontal;
 			
-			Controls.Add( contentTextBox );
+			acceptButton.Text = "Accept Changes";
+			acceptButton.Location = new Point( 3, 3 );
+			acceptButton.Size = new Size( 150, 23 );
+			acceptButton.Click += new EventHandler( OnAcceptButtonClick );
 			
-			contentTextBox.TextChanged += new EventHandler( OnContentTextBoxTextChanged );
+			Controls.Add( contentTextBox );
+			Controls.Add( acceptButton );
 			
 			ResumeLayout( false );
 		}
 		
 		public TextBox ContentTextBox
 		{
-			set
-			{
+			set {
 				contentTextBox = value;
 			}
 			
-			get
-			{
+			get {
 				return contentTextBox;
 			}
 		}
 		
-		void OnContentTextBoxTextChanged( object sender, EventArgs e )
+		void OnAcceptButtonClick( object sender, EventArgs e )
 		{
-			parentForm.ChangeContentText( );
+			parentForm.ChangeStringResource( );
 		}
 	}
 }

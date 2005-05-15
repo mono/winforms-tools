@@ -1,3 +1,11 @@
+2005-05-15  Alexander Olk  <xenomorph2@onlinehome.de>
+
+	* AboutDialog.cs, ImagePanel.cs, IResource.cs, IResourceRenderer.cs, MainForm.cs,
+	  ResourceBase.cs, ResourceIcon.cs, ResourceImage.cs, ResourceListBox.cs,
+	  ResourceString.cs, ResourceType.cs, TextEntryDialog.cs, TextPanel.cs:
+	  Major rewrite, some old files/classes removed, new added.
+	  Added ownerdrawn ListBox to display the resources.
+
 2005-04-01  Alexander Olk  <xenomorph2@onlinehome.de>
 
 	* AboutDialog.cs, ContentStruct.cs, ContentType.cs, ImagePanel.cs,
