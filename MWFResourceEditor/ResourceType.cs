@@ -10,8 +10,11 @@ namespace MWFResourceEditor
 		TypeImage,
 		TypeIcon,
 		TypeString,
-		TypeByte,
-		TypeColor
+		TypeByteArray,
+		TypeColor,
+		TypeSize,
+		TypeBoolean,
+		TypeInt32
 	}
 }
 

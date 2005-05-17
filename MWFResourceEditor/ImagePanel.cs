@@ -111,7 +111,7 @@ namespace MWFResourceEditor
 						
 						imageOrIconName = Path.GetFileName( ofd.FileName );
 						
-						parentForm.ChangeIconResource( );
+						parentForm.ChangeResourceContent( );
 					}
 					else
 					{
@@ -119,7 +119,7 @@ namespace MWFResourceEditor
 						
 						imageOrIconName = Path.GetFileName( ofd.FileName );
 						
-						parentForm.ChangeImageResource( );
+						parentForm.ChangeResourceContent( );
 					}
 				}
 				catch (Exception ex)

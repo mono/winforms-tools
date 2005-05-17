@@ -10,6 +10,15 @@ namespace MWFResourceEditor
 	{
 		private Icon icon = null;
 		
+		public ResourceIcon( )
+		{}
+		
+		public ResourceIcon( string name, Icon icon )
+		{
+			ResourceName = name;
+			Icon = icon;
+		}
+		
 		public ResourceType ResourceType
 		{
 			get {

@@ -60,7 +60,7 @@ namespace MWFResourceEditor
 		
 		void OnAcceptButtonClick( object sender, EventArgs e )
 		{
-			parentForm.ChangeStringResource( );
+			parentForm.ChangeResourceContent( );
 		}
 	}
 }

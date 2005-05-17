@@ -10,6 +10,15 @@ namespace MWFResourceEditor
 	{
 		private string text = null;
 		
+		public ResourceString( )
+		{}
+		
+		public ResourceString( string name, string text )
+		{
+			ResourceName = name;
+			Text = text;
+		}
+		
 		public ResourceType ResourceType
 		{
 			get {

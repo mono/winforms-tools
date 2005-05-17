@@ -10,6 +10,15 @@ namespace MWFResourceEditor
 	{
 		private Image image = null;
 		
+		public ResourceImage( )
+		{}
+		
+		public ResourceImage( string name, Image image )
+		{
+			ResourceName = name;
+			Image = image;
+		}
+		
 		public ResourceType ResourceType
 		{
 			get {

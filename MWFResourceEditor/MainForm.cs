@@ -23,6 +23,7 @@ namespace MWFResourceEditor
 		private MenuItem menuItemResources;
 		private MenuItem menuItemAddString;
 		private MenuItem menuItemAddFiles;
+		private MenuItem menuItemAddColor;
 		private MenuItem menuItemCopy;
 //		private MenuItem menuItemCut;
 		private MenuItem menuItemDelete;
@@ -36,38 +37,23 @@ namespace MWFResourceEditor
 		private Control contentControl;
 		private ImagePanel imagePanel;
 		private TextPanel textPanel;
+		private ColorPanel colorPanel;
+		private ByteArrayPanel byteArrayPanel;
 		private ResourceListBox resourceListBox;
 		private ContextMenu contextMenu;
 		private Splitter splitter;
 		
 		private ResXResourceReader resXResourceReader;
 		
-		private Hashtable resourceHashtable = new Hashtable();
-		
 		private Panel activePanel;
 		
 		private IResource resourceCopy;
 		
-		private string itemNameCopy = "";
-		
 		private string fullFileName = "New Resource.resx";
-		
-		static int copyCounter = 1;
 		
 		public MainForm( )
 		{
 			InitializeComponent( );
-		}
-		
-		public TextPanel TextPanel
-		{
-			set {
-				textPanel = value;
-			}
-			
-			get {
-				return textPanel;
-			}
 		}
 		
 		private void InitializeComponent( )
@@ -85,6 +71,7 @@ namespace MWFResourceEditor
 			menuItemResources = new MenuItem( );
 			menuItemAddString = new MenuItem( );
 			menuItemAddFiles = new MenuItem( );
+			menuItemAddColor = new MenuItem( );
 			menuItemDash2 = new MenuItem( );
 			menuItemDelete = new MenuItem( );
 			menuItemCopy = new MenuItem( );
@@ -102,6 +89,8 @@ namespace MWFResourceEditor
 			
 			imagePanel = new ImagePanel( this );
 			textPanel = new TextPanel( this );
+			colorPanel = new ColorPanel( this );
+			byteArrayPanel = new ByteArrayPanel( this );
 			resourcePanel = new Panel( );
 			
 			resourceListBox = new ResourceListBox( );
@@ -156,6 +145,7 @@ namespace MWFResourceEditor
 			menuItemResources.MenuItems.AddRange( new MenuItem[] {
 								     menuItemAddString,
 								     menuItemAddFiles,
+								     menuItemAddColor,
 								     menuItemDash2,
 								     menuItemDelete,
 								     menuItemCopy,
@@ -174,45 +164,50 @@ namespace MWFResourceEditor
 			menuItemAddFiles.Text = "Add Fi&le(s)";
 			menuItemAddFiles.Click += new EventHandler( OnMenuItemAddFilesClick );
 			
+			// menuItemAddColor
+			menuItemAddColor.Index = 10;
+			menuItemAddColor.Text = "Add Colo&r";
+			menuItemAddColor.Click += new EventHandler( OnMenuItemAddColorClick );
+			
 			// menuItemDash2
-			menuItemDash2.Index = 10;
+			menuItemDash2.Index = 11;
 			menuItemDash2.Text = "-";
 			
 			// menuItemDelete
-			menuItemDelete.Index = 11;
+			menuItemDelete.Index = 12;
 			menuItemDelete.Text = "&Delete";
 			menuItemDelete.Click += new EventHandler( OnMenuItemDeleteClick );
 			
 			// menuItemCopy
-			menuItemCopy.Index = 12;
+			menuItemCopy.Index = 13;
 			menuItemCopy.Text = "&Copy";
 			menuItemCopy.Click += new EventHandler( OnMenuItemCopyClick );
 			
 			// menuItemCut
-//			menuItemCut.Index = 13;
+//			menuItemCut.Index = 14;
 //			menuItemCut.Text = "Cut";
 //			menuItemCut.Click += new EventHandler( OnMenuItemCutClick );
 			
 			// menuItemPaste
-			menuItemPaste.Index = 14;
+			menuItemPaste.Index = 15;
 			menuItemPaste.Text = "Paste";
 			menuItemPaste.Click += new EventHandler( OnMenuItemPasteClick );
 			
-			menuItemDash3.Index = 15;
+			menuItemDash3.Index = 16;
 			menuItemDash3.Text = "-";
 			
-			menuItemRename.Index = 16;
+			menuItemRename.Index = 17;
 			menuItemRename.Text = "Rename";
 			menuItemRename.Click += new EventHandler( OnMenuItemRenameClick );
 			
 			// menuItemHelp
-			menuItemHelp.Index = 17;
+			menuItemHelp.Index = 18;
 			menuItemHelp.MenuItems.AddRange( new MenuItem[] {
 								menuItemAbout} );
 			menuItemHelp.Text = "&Help";
 			
 			// menuItemAbout
-			menuItemAbout.Index = 18;
+			menuItemAbout.Index = 19;
 			menuItemAbout.Text = "A&bout";
 			menuItemAbout.Click += new EventHandler( OnMenuItemAboutClick );
 			
@@ -225,8 +220,8 @@ namespace MWFResourceEditor
 			activePanel = textPanel;
 			
 			// textPanel
-			textPanel.Location = new Point( 0, 0 );
-			textPanel.Size = new Size( 592, 213 );
+//			textPanel.Location = new Point( 0, 0 );
+//			textPanel.Size = new Size( 592, 213 );
 			
 			// resourceListBox
 			resourceListBox.Location = new Point( 0, 0 );
@@ -259,6 +254,7 @@ namespace MWFResourceEditor
 			contextMenu.MenuItems.AddRange( new MenuItem[] {
 							       menuItemAddString.CloneMenu( ),
 							       menuItemAddFiles.CloneMenu( ),
+							       menuItemAddColor.CloneMenu( ),
 							       menuItemDash2.CloneMenu( ),
 							       menuItemDelete.CloneMenu( ),
 							       menuItemCopy.CloneMenu( ),
@@ -291,31 +287,29 @@ namespace MWFResourceEditor
 			
 			Text = fullFileName;
 			
-			ResetListBoxAndHashtable( );
+			ResetListBox( );
 		}
 		
-		private void ResetListBoxAndHashtable( )
+		private void ResetListBox( )
 		{
 			if ( resourceListBox.Items.Count > 0 )
-				resourceListBox.Items.Clear( );
+				resourceListBox.ClearResources( );
 			
-			if ( resourceHashtable.Count > 0 )
-				resourceHashtable.Clear( );
-			
-			if ( activePanel == imagePanel )
+			if ( activePanel != textPanel )
 			{
-				imagePanel.Hide( );
-				contentControl.Controls.Remove( imagePanel );
+				activePanel.Hide( );
+				contentControl.Controls.Remove( activePanel );
 				contentControl.Controls.Add( textPanel );
 				
 				activePanel = textPanel;
+				textPanel.ContentTextBox.Clear( );
 				textPanel.Show( );
 			}
 		}
 		
 		void OnMenuItemLoadClick( object sender, EventArgs e )
 		{
-			ResetListBoxAndHashtable( );
+			ResetListBox( );
 			
 			OpenFileDialog ofd = new OpenFileDialog( );
 			ofd.CheckFileExists = true;
@@ -366,11 +360,9 @@ namespace MWFResourceEditor
 		{
 			ResXResourceWriter rxrw = new ResXResourceWriter( fullFileName );
 			
-			IDictionaryEnumerator ienumerator = resourceHashtable.GetEnumerator( );
-			
-			while ( ienumerator.MoveNext( ) )
+			while ( resourceListBox.Items.GetEnumerator( ).MoveNext( ) )
 			{
-				IResource res_abstract = (IResource)ienumerator.Value;
+				IResource res_abstract = (IResource)resourceListBox.Items.GetEnumerator( ).Current;
 				
 				switch ( res_abstract.ResourceType )
 				{
@@ -380,7 +372,7 @@ namespace MWFResourceEditor
 						if ( resImage.Image == null )
 							continue;
 						
-						rxrw.AddResource( ienumerator.Key.ToString( ), resImage.Image );
+						rxrw.AddResource( resImage.ResourceName, resImage.Image );
 						break;
 						
 					case ResourceType.TypeString:
@@ -389,7 +381,7 @@ namespace MWFResourceEditor
 						if ( resStr == null )
 							continue;
 						
-						rxrw.AddResource( ienumerator.Key.ToString( ), resStr.Text );
+						rxrw.AddResource( resStr.ResourceName, resStr.Text );
 						break;
 						
 					case ResourceType.TypeIcon:
@@ -398,7 +390,25 @@ namespace MWFResourceEditor
 						if ( resIcon == null )
 							continue;
 						
-						rxrw.AddResource( ienumerator.Key.ToString( ), resIcon.Icon );
+						rxrw.AddResource( resIcon.ResourceName, resIcon.Icon );
+						break;
+						
+					case ResourceType.TypeColor:
+						ResourceColor resColor = (ResourceColor)res_abstract;
+						
+						if ( resColor == null )
+							continue;
+						
+						rxrw.AddResource( resColor.ResourceName, resColor.Color );
+						break;
+						
+					case ResourceType.TypeByteArray:
+						ResourceByteArray resByteArray = (ResourceByteArray)res_abstract;
+						
+						if ( resByteArray == null )
+							continue;
+						
+						rxrw.AddResource( resByteArray.ResourceName, resByteArray.ByteArray );
 						break;
 						
 					default:
@@ -420,18 +430,13 @@ namespace MWFResourceEditor
 			
 			if ( new_item_string.Length != 0 )
 			{
-				ResourceString resStr = new ResourceString( );
-				
-				resStr.ResourceName = new_item_string;
-				resStr.Text = new_item_string;
-				
-				resourceHashtable.Add( new_item_string, resStr );
+				ResourceString resStr = new ResourceString( new_item_string, new_item_string );
 				
 				resourceListBox.BeginUpdate( );
 				if ( resourceListBox.Items.Count == 0 )
-					resourceListBox.Items.Add( resStr );
+					resourceListBox.AddResourceDirect( resStr );
 				else
-					resourceListBox.Items.Insert( 0, resStr );
+					resourceListBox.InsertResourceDirect( 0, resStr );
 				resourceListBox.EndUpdate( );
 				
 				resourceListBox.SelectedIndex = 0;
@@ -440,11 +445,10 @@ namespace MWFResourceEditor
 				// bug in ListBox ???
 				resourceListBox.TopIndex = 0;
 				
-				resourceListBox.Refresh( );
+				resourceListBox.Invalidate( );
 			}
 		}
 		
-		// currently only images and icons...
 		void OnMenuItemAddFilesClick( object sender, EventArgs e )
 		{
 			OpenFileDialog ofd = new OpenFileDialog( );
@@ -459,48 +463,44 @@ namespace MWFResourceEditor
 				{
 					try
 					{
-						
-						// FIXME: Use serialazation ???
-						
 						string upper_file_name = file_name.ToUpper( );
 						
 						// icon
 						if ( upper_file_name.EndsWith( ".ICO" ) )
 						{
-							ResourceIcon resIcon = new ResourceIcon( );
-							
-							string icon_name = Path.GetFileName( file_name );
-							
-							resIcon.ResourceName = icon_name;
-							
-							resIcon.Icon = new Icon( file_name );
-							
-							resourceHashtable.Add( icon_name, resIcon );
+							ResourceIcon resIcon = new ResourceIcon( Path.GetFileName( file_name ), new Icon( file_name ) );
 							
 							resourceListBox.BeginUpdate( );
-							if ( resourceListBox.Items.Count == 0 )
-								resourceListBox.Items.Add( resIcon );
-							else
-								resourceListBox.Items.Insert( 0, resIcon );
+							resourceListBox.AddResourceDirect( resIcon );
 							resourceListBox.EndUpdate( );
 						}
 						else
+						// images
+						if ( upper_file_name.EndsWith( ".PNG" ) || upper_file_name.EndsWith( ".JPG" ) ||
+						    upper_file_name.EndsWith( ".GIF" ) || upper_file_name.EndsWith( ".BMP" ) )
 						{
-							ResourceImage resImage = new ResourceImage( );
-							
-							string imageName = Path.GetFileName( file_name );
-							
-							resImage.ResourceName = imageName;
-							
-							resImage.Image = Image.FromFile( file_name );
-							
-							resourceHashtable.Add( imageName, resImage );
+							ResourceImage resImage = new ResourceImage( Path.GetFileName( file_name ), Image.FromFile( file_name )  );
 							
 							resourceListBox.BeginUpdate( );
-							if ( resourceListBox.Items.Count == 0 )
-								resourceListBox.Items.Add( resImage );
-							else
-								resourceListBox.Items.Insert( 0, resImage );
+							resourceListBox.AddResourceDirect( resImage );
+							resourceListBox.EndUpdate( );
+						}
+						else
+						// byte array
+						{
+							byte[] bytes = null;
+							
+							using ( FileStream fs = File.OpenRead( file_name ) )
+							{
+								bytes = new byte[ fs.Length ];
+								
+								fs.Read( bytes, 0, bytes.Length );
+							}
+							
+							ResourceByteArray resByteArray = new ResourceByteArray( Path.GetFileName( file_name ), bytes );
+							
+							resourceListBox.BeginUpdate( );
+							resourceListBox.AddResourceDirect( resByteArray );
 							resourceListBox.EndUpdate( );
 						}
 					}
@@ -512,13 +512,31 @@ namespace MWFResourceEditor
 				
 				if ( ofd.FileNames.Length > 0 )
 				{
-					resourceListBox.SelectedIndex = 0;
-					
-					// FIXME: TopIndex has not the effect that is wanted
-					// bug in ListBox ???
-					resourceListBox.TopIndex = 0;
-					resourceListBox.Refresh( );
+					if ( resourceListBox.Items.Count > 0 )
+					{
+						resourceListBox.SelectedIndex = 0;
+						
+						// FIXME: TopIndex has not the effect that is wanted
+						// bug in ListBox ???
+						resourceListBox.TopIndex = 0;
+						
+						resourceListBox.Invalidate( );
+					}
 				}
+			}
+		}
+		
+		void OnMenuItemAddColorClick( object sender, EventArgs e )
+		{
+			ColorDialog cd = new ColorDialog( );
+			
+			if ( DialogResult.OK == cd.ShowDialog( ) )
+			{
+				string resource_name = resourceListBox.UniqueResourceName( "Color" );
+				
+				resourceListBox.AddResource( resource_name, cd.Color );
+				
+				resourceListBox.Invalidate( );
 			}
 		}
 		
@@ -527,29 +545,9 @@ namespace MWFResourceEditor
 			if ( resourceListBox.SelectedItems.Count == 0 )
 				return;
 			
-			IResource resource = (IResource)resourceListBox.SelectedItems[ 0 ];
+			resourceListBox.RemoveResource( (IResource)resourceListBox.SelectedItems[ 0 ] );
 			
-			switch ( resource.ResourceType )
-			{
-				case ResourceType.TypeIcon:
-					ResourceIcon resIcon = (ResourceIcon)resource;
-					resourceHashtable.Remove( resIcon );
-					break;
-				case ResourceType.TypeImage:
-					ResourceImage resImage = (ResourceImage)resource;
-					resourceHashtable.Remove( resImage );
-					break;
-				case ResourceType.TypeString:
-					ResourceString resString = (ResourceString)resource;
-					resourceHashtable.Remove( resString );
-					break;
-				default:
-					break;
-			}
-			
-			resourceListBox.Items.Remove( resource );
-			
-			resourceListBox.Refresh( );
+			resourceListBox.Invalidate( );
 		}
 		
 		void OnMenuItemCopyClick( object sender, EventArgs e )
@@ -557,26 +555,11 @@ namespace MWFResourceEditor
 			if ( resourceListBox.SelectedItems.Count == 0 )
 				return;
 			
-			itemNameCopy = ( (IResource)resourceListBox.SelectedItems[ 0 ] ).ResourceName;
-			
-			IResource res_abstract = (IResource)resourceHashtable[ itemNameCopy ];
+			IResource res_abstract = (IResource)resourceListBox.SelectedItems[ 0 ];
 			
 			resourceCopy = (IResource)res_abstract.Clone( );
 			
-			BuildNameWithNumber( );
-		}
-		
-		private void BuildNameWithNumber( )
-		{
-			string itemNameTest = itemNameCopy + "_" + copyCounter.ToString( );
-			
-			while ( resourceHashtable.ContainsKey( itemNameTest ) )
-			{
-				copyCounter++;
-				itemNameTest = itemNameCopy + "_" + copyCounter.ToString( );
-			}
-			
-			itemNameCopy = itemNameTest;
+			resourceCopy.ResourceName = resourceListBox.UniqueResourceName( resourceCopy.ResourceName );
 		}
 		
 //		void OnMenuItemCutClick( object sender, EventArgs e )
@@ -587,41 +570,9 @@ namespace MWFResourceEditor
 		
 		void OnMenuItemPasteClick( object sender, EventArgs e )
 		{
-			if ( itemNameCopy == "" )
-				return;
+			resourceListBox.AddResourceDirect( resourceCopy );
 			
-			resourceHashtable.Add( itemNameCopy, resourceCopy );
-			
-			switch ( resourceCopy.ResourceType )
-			{
-				case ResourceType.TypeString:
-					ResourceString resString = resourceCopy as ResourceString;
-					
-					resString.ResourceName = itemNameCopy;
-					
-					resourceListBox.Items.Add( resString );
-					break;
-					
-				case ResourceType.TypeImage:
-					ResourceImage resImage = resourceCopy as ResourceImage;
-					
-					resImage.ResourceName = itemNameCopy;
-					
-					resourceListBox.Items.Add( resImage );
-					break;
-					
-				case ResourceType.TypeIcon:
-					ResourceIcon resIcon = resourceCopy as ResourceIcon;
-					
-					resIcon.ResourceName = itemNameCopy;
-					
-					resourceListBox.Items.Add( resIcon );
-					break;
-				default:
-					break;
-			}
-			
-			resourceListBox.Refresh( );
+			resourceListBox.Invalidate( );
 		}
 		
 		void OnMenuItemRenameClick( object sender, EventArgs e )
@@ -630,25 +581,15 @@ namespace MWFResourceEditor
 				return;
 			
 			IResource resource = (IResource)resourceListBox.SelectedItems[ 0 ];
-			string item_name = resource.ResourceName;
+			string resource_name = resource.ResourceName;
 			
-			string new_item_string = TextEntryDialog.Show( "Rename", "Enter new name for \"" + item_name + "\":" );
+			string new_resource_name = TextEntryDialog.Show( "Rename", "Enter new name for \"" + resource_name + "\":" );
 			
-			if ( new_item_string.Length != 0 )
+			if ( new_resource_name.Length != 0 )
 			{
-				resourceHashtable.Remove( item_name );
+				resourceListBox.RenameResource( resource, new_resource_name );
 				
-				int index = resourceListBox.Items.IndexOf( resource );
-				
-				resourceListBox.Items.Remove( resource );
-				
-				resource.ResourceName = new_item_string;
-				
-				resourceHashtable.Add( new_item_string, resource );
-				
-				resourceListBox.Items.Insert( index, resource );
-				
-				resourceListBox.Refresh( );
+				resourceListBox.Invalidate( );
 			}
 		}
 		
@@ -659,55 +600,81 @@ namespace MWFResourceEditor
 			
 			IResource resource = (IResource)resourceListBox.SelectedItems[ 0 ];
 			
-			string key = resource.ResourceName;
-			
-			IResource res_abstract = (IResource)resourceHashtable[ key ];
-			
-			switch ( res_abstract.ResourceType )
+			switch ( resource.ResourceType )
 			{
 				case ResourceType.TypeImage:
-					if ( activePanel == textPanel )
+					if ( activePanel != imagePanel )
 					{
-						textPanel.Hide( );
-						contentControl.Controls.Remove( textPanel );
+						activePanel.Hide( );
+						contentControl.Controls.Remove( activePanel );
 						contentControl.Controls.Add( imagePanel );
 						
 						activePanel = imagePanel;
 						imagePanel.Show( );
 					}
 					
-					ResourceImage resImage = (ResourceImage)res_abstract;
+					ResourceImage resImage = (ResourceImage)resource;
 					imagePanel.Image = resImage.Image;
 					break;
 					
 				case ResourceType.TypeString:
-					if ( activePanel == imagePanel )
+					if ( activePanel != textPanel )
 					{
-						imagePanel.Hide( );
-						contentControl.Controls.Remove( imagePanel );
+						activePanel.Hide( );
+						contentControl.Controls.Remove( activePanel );
 						contentControl.Controls.Add( textPanel );
 						
 						activePanel = textPanel;
 						textPanel.Show( );
 					}
 					
-					ResourceString resString = (ResourceString)res_abstract;
+					ResourceString resString = (ResourceString)resource;
 					textPanel.ContentTextBox.Text = resString.Text;
 					break;
 					
 				case ResourceType.TypeIcon:
-					if ( activePanel == textPanel )
+					if ( activePanel != imagePanel )
 					{
-						textPanel.Hide( );
-						contentControl.Controls.Remove( textPanel );
+						activePanel.Hide( );
+						contentControl.Controls.Remove( activePanel );
 						contentControl.Controls.Add( imagePanel );
 						
 						activePanel = imagePanel;
 						imagePanel.Show( );
 					}
 					
-					ResourceIcon resIcon = (ResourceIcon)res_abstract;
+					ResourceIcon resIcon = (ResourceIcon)resource;
 					imagePanel.Icon = resIcon.Icon;
+					break;
+					
+				case ResourceType.TypeColor:
+					if ( activePanel != colorPanel )
+					{
+						activePanel.Hide( );
+						contentControl.Controls.Remove( activePanel );
+						contentControl.Controls.Add( colorPanel );
+						
+						activePanel = colorPanel;
+						colorPanel.Show( );
+					}
+					
+					ResourceColor resColor = (ResourceColor)resource;
+					colorPanel.Color = resColor.Color;
+					break;
+					
+				case ResourceType.TypeByteArray:
+					if ( activePanel != byteArrayPanel )
+					{
+						activePanel.Hide( );
+						contentControl.Controls.Remove( activePanel );
+						contentControl.Controls.Add( byteArrayPanel );
+						
+						activePanel = byteArrayPanel;
+						byteArrayPanel.Show( );
+					}
+					
+					ResourceByteArray resByteArray = (ResourceByteArray)resource;
+					byteArrayPanel.ByteArray = resByteArray.ByteArray;
 					break;
 					
 				default:
@@ -726,42 +693,7 @@ namespace MWFResourceEditor
 			resourceListBox.BeginUpdate( );
 			
 			foreach ( DictionaryEntry de in resXResourceReader )
-			{
-				string hashName = de.Key.ToString( );
-				
-				if ( de.Value.GetType( ) == typeof(Bitmap) )
-				{
-					ResourceImage resImage = new ResourceImage( );
-					
-					resImage.ResourceName = hashName;
-					resImage.Image = (Image)de.Value;
-					
-					resourceListBox.Items.Add( resImage );
-					resourceHashtable.Add( hashName, resImage );
-				}
-				else
-				if ( de.Value.GetType( ) == typeof(String) )
-				{
-					ResourceString resString = new ResourceString( );
-					
-					resString.ResourceName = hashName;
-					resString.Text = de.Value.ToString( );
-					
-					resourceListBox.Items.Add( resString );
-					resourceHashtable.Add( hashName, resString );
-				}
-				else
-				if ( de.Value.GetType( ) == typeof( Icon ) )
-				{
-					ResourceIcon resIcon = new ResourceIcon( );
-					
-					resIcon.ResourceName = hashName;
-					resIcon.Icon = (Icon)de.Value;
-					
-					resourceListBox.Items.Add( resIcon );
-					resourceHashtable.Add( hashName, resIcon );
-				}
-			}
+				resourceListBox.AddResource( de.Key.ToString( ), de.Value );
 			
 			resourceListBox.EndUpdate( );
 			
@@ -769,99 +701,46 @@ namespace MWFResourceEditor
 				resourceListBox.SelectedIndex = 0;
 		}
 		
-		public void ChangeStringResource( )
+		public void ChangeResourceContent( )
 		{
 			if ( resourceListBox.SelectedItems.Count != 0 )
 			{
 				resourceListBox.BeginUpdate( );
 				
-				IResource resource = (IResource)resourceListBox.SelectedItems[ 0 ];
-				string name = resource.ResourceName;
+				IResource oldRes = (IResource)resourceListBox.SelectedItems[ 0 ];
+				IResource newRes = null;
 				
-				ResourceString oldresString = (ResourceString)resourceHashtable[ name ];
+				switch ( oldRes.ResourceType )
+				{
+					case ResourceType.TypeString:
+						ResourceString newresString = new ResourceString( oldRes.ResourceName, textPanel.ContentTextBox.Text );
+						newRes = newresString;
+						break;
+						
+					case ResourceType.TypeImage:
+						ResourceImage newresImage = new ResourceImage( oldRes.ResourceName, imagePanel.Image );
+						newRes = newresImage;
+						break;
+						
+					case ResourceType.TypeIcon:
+						ResourceIcon newresIcon = new ResourceIcon( oldRes.ResourceName, imagePanel.Icon );
+						newRes = newresIcon;
+						break;
+						
+					case ResourceType.TypeColor:
+						ResourceColor newresColor = new ResourceColor( oldRes.ResourceName, colorPanel.Color );
+						newRes = newresColor;
+						break;
+						
+					default:
+						break;
+				}
 				
-				ResourceString newresString = new ResourceString( );
-				
-				newresString.ResourceName = name;
-				newresString.Text = textPanel.ContentTextBox.Text;
-				
-				resourceHashtable.Remove( name );
-				
-				resourceHashtable.Add( name, newresString );
-				
-				int index = resourceListBox.Items.IndexOf( oldresString );
-				
-				resourceListBox.Items.Remove( oldresString );
-				
-				resourceListBox.Items.Insert( index, newresString );
-				
-				resourceListBox.EndUpdate( );
-				
-				resourceListBox.Refresh( );
-			}
-		}
-		
-		public void ChangeImageResource( )
-		{
-			if ( resourceListBox.SelectedItems.Count != 0 )
-			{
-				resourceListBox.BeginUpdate( );
-				
-				IResource resource = (IResource)resourceListBox.SelectedItems[ 0 ];
-				string imagename = resource.ResourceName;
-				
-				ResourceImage oldresImage = (ResourceImage)resourceHashtable[ imagename ];
-				
-				ResourceImage newresImage = new ResourceImage( );
-				
-				newresImage.ResourceName = oldresImage.ResourceName;
-				newresImage.Image = imagePanel.Image;
-				
-				resourceHashtable.Remove( imagename );
-				
-				resourceHashtable.Add( imagename, newresImage );
-				
-				int index = resourceListBox.Items.IndexOf( oldresImage );
-				
-				resourceListBox.Items.Remove( oldresImage );
-				
-				resourceListBox.Items.Insert( index, newresImage );
+				resourceListBox.ReplaceResource( oldRes, newRes );
 				
 				resourceListBox.EndUpdate( );
 				
-				resourceListBox.Refresh( );
-			}
-		}
-		
-		public void ChangeIconResource( )
-		{
-			if ( resourceListBox.SelectedItems.Count != 0 )
-			{
-				resourceListBox.BeginUpdate( );
-				
-				IResource resource = (IResource)resourceListBox.SelectedItems[ 0 ];
-				string iconname = resource.ResourceName;
-				
-				ResourceIcon oldresIcon = (ResourceIcon)resourceHashtable[ iconname ];
-				
-				ResourceIcon newresIcon = new ResourceIcon( );
-				
-				newresIcon.ResourceName = oldresIcon.ResourceName;
-				newresIcon.Icon = imagePanel.Icon;
-				
-				resourceHashtable.Remove( iconname );
-				
-				resourceHashtable.Add( iconname, newresIcon );
-				
-				int index = resourceListBox.Items.IndexOf( oldresIcon );
-				
-				resourceListBox.Items.Remove( oldresIcon );
-				
-				resourceListBox.Items.Insert( index, newresIcon );
-				
-				resourceListBox.EndUpdate( );
-				
-				resourceListBox.Refresh( );
+				resourceListBox.Invalidate( );
 			}
 		}
 		
