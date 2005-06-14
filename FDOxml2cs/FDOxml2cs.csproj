@@ -1,0 +1,51 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProductVersion>8.0.30703</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <ProjectGuid>{120B4150-B502-4755-8886-5BC811F45698}</ProjectGuid>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>FDOxml2cs</RootNamespace>
+        <AssemblyName>FDOxml2cs</AssemblyName>
+        <WarningLevel>4</WarningLevel>
+        <StartupObject/>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugSymbols>false</DebugSymbols>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="System.Xml"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets"/>
+    <ItemGroup>
+        <Compile Include="AliasReader.cs"/>
+        <Compile Include="CommentReader.cs"/>
+        <Compile Include="FDOxml2cs.cs"/>
+        <Compile Include="GlobReader.cs"/>
+        <Compile Include="MagicReader.cs"/>
+        <Compile Include="MainReader.cs"/>
+        <Compile Include="Match.cs"/>
+        <Compile Include="MatchReader.cs"/>
+        <Compile Include="MatchTypes.cs"/>
+        <Compile Include="MimeType.cs"/>
+        <Compile Include="MimeTypeReader.cs"/>
+        <Compile Include="MimeUtils.cs"/>
+        <Compile Include="SourceWriter.cs"/>
+        <Compile Include="SubClassReader.cs"/>
+        <Compile Include="SubMatchReader.cs"/>
+    </ItemGroup>
+</Project>

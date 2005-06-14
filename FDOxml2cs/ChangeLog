@@ -1,0 +1,7 @@
+2005-06-14  Alexander Olk  <xenomorph2@onlinehome.de>
+
+	* AliasReader.cs, CommentReader.cs, FDOxml2cs.cs, GlobReader.cs,
+	  MagicReader.cs, MainReader.cs, Match.cs, MatchReader.cs, MatchTypes.cs,
+	  MimeType.cs, MimeTypeReader.cs, MimeUtils.cs, SourceWriter.cs,
+	  SubClassReader.cs, SubMatchReader.cs:
+	  Initial import of the Freedesktop.org mime xml to C# source converter
