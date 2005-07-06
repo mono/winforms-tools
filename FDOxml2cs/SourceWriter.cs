@@ -519,12 +519,12 @@ namespace FDOxml2cs
 			"{\n" +
 			"\tinternal struct MimeGenerated\n" +
 			"\t{\n" +
-			"\t\tpublic static NameValueCollection Aliases = new NameValueCollection();\n" +
-			"\t\tpublic static NameValueCollection SubClasses = new NameValueCollection();\n\n" +
-			"\t\tpublic static NameValueCollection GlobalPatternsShort = new NameValueCollection();\n" +
-			"\t\tpublic static NameValueCollection GlobalPatternsLong = new NameValueCollection();\n" +
-			"\t\tpublic static NameValueCollection GlobalLiterals = new NameValueCollection();\n" +
-			"\t\tpublic static NameValueCollection GlobalSufPref = new NameValueCollection();\n" +
+			"\t\tpublic static NameValueCollection Aliases = new NameValueCollection( new CaseInsensitiveHashCodeProvider(), new Comparer( System.Globalization.CultureInfo.CurrentUICulture ) );\n" +
+			"\t\tpublic static NameValueCollection SubClasses = new NameValueCollection( new CaseInsensitiveHashCodeProvider(), new Comparer( System.Globalization.CultureInfo.CurrentUICulture ) );\n\n" +
+			"\t\tpublic static NameValueCollection GlobalPatternsShort = new NameValueCollection( new CaseInsensitiveHashCodeProvider(), new Comparer( System.Globalization.CultureInfo.CurrentUICulture ) );\n" +
+			"\t\tpublic static NameValueCollection GlobalPatternsLong = new NameValueCollection( new CaseInsensitiveHashCodeProvider(), new Comparer( System.Globalization.CultureInfo.CurrentUICulture ) );\n" +
+			"\t\tpublic static NameValueCollection GlobalLiterals = new NameValueCollection( new CaseInsensitiveHashCodeProvider(), new Comparer( System.Globalization.CultureInfo.CurrentUICulture ) );\n" +
+			"\t\tpublic static NameValueCollection GlobalSufPref = new NameValueCollection( new CaseInsensitiveHashCodeProvider(), new Comparer( System.Globalization.CultureInfo.CurrentUICulture ) );\n" +
 			"\t\tpublic static Hashtable MimeTypes = new Hashtable();\n\n" +
 			"\t\tpublic static ArrayList Matches80Plus = new ArrayList();\n" +
 			"\t\tpublic static ArrayList MatchesBelow80 = new ArrayList();\n\n" +

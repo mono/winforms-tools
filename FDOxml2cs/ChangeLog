@@ -1,3 +1,8 @@
+2005-07-06  Alexander Olk  <xenomorph2@onlinehome.de>
+
+	* SourceWriter.cs: Use case sensitive comparer for
+	  NameValueCollections
+
 2005-06-14  Alexander Olk  <xenomorph2@onlinehome.de>
 
 	* AliasReader.cs, CommentReader.cs, FDOxml2cs.cs, GlobReader.cs,
