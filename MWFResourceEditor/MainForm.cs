@@ -360,10 +360,8 @@ namespace MWFResourceEditor
 		{
 			ResXResourceWriter rxrw = new ResXResourceWriter( fullFileName );
 			
-			while ( resourceListBox.Items.GetEnumerator( ).MoveNext( ) )
+			foreach ( IResource res_abstract in resourceListBox.Items )
 			{
-				IResource res_abstract = (IResource)resourceListBox.Items.GetEnumerator( ).Current;
-				
 				switch ( res_abstract.ResourceType )
 				{
 					case ResourceType.TypeImage:
