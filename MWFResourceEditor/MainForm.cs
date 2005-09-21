@@ -382,6 +382,15 @@ namespace MWFResourceEditor
 						rxrw.AddResource( resStr.ResourceName, resStr.Text );
 						break;
 						
+					case ResourceType.TypeCursor:
+						ResourceCursor resCursor = (ResourceCursor)res_abstract;
+						
+						if ( resCursor == null )
+							continue;
+						
+						rxrw.AddResource( resCursor.ResourceName, resCursor.Cursor );
+						break;
+						
 					case ResourceType.TypeIcon:
 						ResourceIcon resIcon = (ResourceIcon)res_abstract;
 						
@@ -453,7 +462,7 @@ namespace MWFResourceEditor
 			ofd.CheckFileExists = true;
 			ofd.Multiselect = true;
 			
-			ofd.Filter = "Images (*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|Icons (*.ico)|*.ico|All files (*.*)|*.*";
+			ofd.Filter = "Images (*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|Icons (*.ico)|*.ico|Cursors (*.cur)|*.cur|All files (*.*)|*.*";
 			
 			if ( DialogResult.OK == ofd.ShowDialog( ) )
 			{
@@ -472,8 +481,15 @@ namespace MWFResourceEditor
 							resourceListBox.AddResourceDirect( resIcon );
 							resourceListBox.EndUpdate( );
 						}
+						else if ( upper_file_name.EndsWith( ".CUR" ) ) {
+							ResourceCursor resCursor = new ResourceCursor( Path.GetFileName( file_name ), new Cursor( file_name ) );
+							
+							resourceListBox.BeginUpdate( );
+							resourceListBox.AddResourceDirect( resCursor );
+							resourceListBox.EndUpdate( );
+						}
 						else
-						// images
+							// images
 						if ( upper_file_name.EndsWith( ".PNG" ) || upper_file_name.EndsWith( ".JPG" ) ||
 						    upper_file_name.EndsWith( ".GIF" ) || upper_file_name.EndsWith( ".BMP" ) )
 						{
@@ -629,7 +645,22 @@ namespace MWFResourceEditor
 					ResourceString resString = (ResourceString)resource;
 					textPanel.ContentTextBox.Text = resString.Text;
 					break;
+
+				case ResourceType.TypeCursor:
+					if ( activePanel != imagePanel ) {
+						activePanel.Hide( );
+						contentControl.Controls.Remove( activePanel );
+						contentControl.Controls.Add( imagePanel );
+						
+						activePanel = imagePanel;
+						imagePanel.Show( );
+					}
 					
+					ResourceCursor resCursor = (ResourceCursor)resource;
+					imagePanel.Image = resCursor.RenderContent;
+					break;
+					
+
 				case ResourceType.TypeIcon:
 					if ( activePanel != imagePanel )
 					{
@@ -723,6 +754,11 @@ namespace MWFResourceEditor
 					case ResourceType.TypeIcon:
 						ResourceIcon newresIcon = new ResourceIcon( oldRes.ResourceName, imagePanel.Icon );
 						newRes = newresIcon;
+						break;
+						
+					case ResourceType.TypeCursor:
+						ResourceCursor newresCursor = new ResourceCursor( oldRes.ResourceName, imagePanel.Cursor );
+						newRes = newresCursor;
 						break;
 						
 					case ResourceType.TypeColor:

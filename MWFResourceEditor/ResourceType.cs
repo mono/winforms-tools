@@ -9,6 +9,7 @@ namespace MWFResourceEditor
 	{
 		TypeImage,
 		TypeIcon,
+		TypeCursor,
 		TypeString,
 		TypeByteArray,
 		TypeColor,
