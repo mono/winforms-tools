@@ -1,3 +1,7 @@
+2005-09-21  Alexander Olk  <xenomorph2@onlinehome.de>
+
+	* ResourceListBox.cs: Add cursor here, too
+
 2005-09-21  Peter Dennis Bartok  <pbartok@novell.com>
 
 	* ResourceCursor.cs: Added

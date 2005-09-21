@@ -73,6 +73,13 @@ namespace MWFResourceEditor
 				
 				Items.Add( resColor );
 			}
+			else
+			if ( resource.GetType( ) == typeof( Cursor ) )
+			{
+				ResourceCursor resCursor = new ResourceCursor( resource_name, (Cursor)resource );
+				
+				Items.Add( resCursor );
+			}
 		}
 		
 		public void AddResourceDirect( IResource resource )
