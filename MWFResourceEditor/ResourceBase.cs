@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace MWFResourceEditor
 {
-	public abstract class ResourceBase
+	public abstract class ResourceBase : IResourceRenderer, ICloneable
 	{
 		protected string resource_name = null;
 		
@@ -30,6 +30,13 @@ namespace MWFResourceEditor
 		
 		protected int all_data_for_rendering_available = 0;
 		
+		public Bitmap RenderContent
+		{
+			get {
+				return renderBitmap;
+			}
+		}
+		
 		public string ResourceName
 		{
 			get {
@@ -50,6 +57,9 @@ namespace MWFResourceEditor
 		
 		protected Graphics CreateNewRenderBitmap( )
 		{
+			if ( renderBitmap != null )
+				renderBitmap.Dispose( );
+			
 			renderBitmap = new Bitmap( renderBitmap_size.Width, renderBitmap_size.Height );
 			
 			Graphics gr = Graphics.FromImage( renderBitmap );
@@ -63,6 +73,25 @@ namespace MWFResourceEditor
 		}
 		
 		protected abstract void CreateRenderBitmap( );
+		
+		public Object Clone( )
+		{
+			return this.MemberwiseClone( );
+		}
+		
+		public bool DummyThumbnailCallback( )
+		{
+			return false;
+		}
+		
+		public Image GetThumbNail( Image image, int new_width, int new_height )
+		{
+			Image.GetThumbnailImageAbort thumbnailCallback = new Image.GetThumbnailImageAbort( DummyThumbnailCallback );
+			
+			Image thumbnail = image.GetThumbnailImage( new_width, new_height, thumbnailCallback, IntPtr.Zero );
+			
+			return thumbnail;
+		}
 	}
 }
 

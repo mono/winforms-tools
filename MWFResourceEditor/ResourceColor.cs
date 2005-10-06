@@ -6,12 +6,9 @@ using System.Drawing;
 
 namespace MWFResourceEditor
 {
-	public class ResourceColor : ResourceBase, IResource, IResourceRenderer
+	public class ResourceColor : ResourceBase, IResource
 	{
 		private Color color;
-		
-		public ResourceColor( )
-		{}
 		
 		public ResourceColor( string name, Color color )
 		{
@@ -24,11 +21,6 @@ namespace MWFResourceEditor
 			get {
 				return ResourceType.TypeColor;
 			}
-		}
-		
-		public object Clone( )
-		{
-			return this.MemberwiseClone( );
 		}
 		
 		public Color Color
@@ -50,13 +42,6 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public Bitmap RenderContent
-		{
-			get {
-				return renderBitmap;
-			}
-		}
-		
 		public string ContentString( )
 		{
 			return color.ToString( );
@@ -64,17 +49,16 @@ namespace MWFResourceEditor
 		
 		protected override void CreateRenderBitmap( )
 		{
-			Graphics gr = CreateNewRenderBitmap( );
-			
-			gr.FillRectangle( new SolidBrush( color ), thumb_location.X, thumb_location.Y, thumb_size.Width, thumb_size.Height );
-			
-			gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
-			
-			gr.DrawString( "Type: " + color.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
-			
-			gr.DrawString( "Color: " + ContentString( ), smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
-			
-			gr.Dispose( );
+			using ( Graphics gr = CreateNewRenderBitmap( ) )
+			{
+				gr.FillRectangle( new SolidBrush( color ), thumb_location.X, thumb_location.Y, thumb_size.Width, thumb_size.Height );
+				
+				gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
+				
+				gr.DrawString( "Type: " + color.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
+				
+				gr.DrawString( "Color: " + ContentString( ), smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
+			}
 		}
 	}
 }

@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace MWFResourceEditor
 {
-	public class ResourceByteArray  : ResourceBase, IResource, IResourceRenderer
+	public class ResourceByteArray  : ResourceBase, IResource
 	{
 		private byte[] byteArray = null;
 		
@@ -45,9 +45,6 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public ResourceByteArray( )
-		{}
-		
 		public ResourceByteArray( string name, byte[] byteArray )
 		{
 			ResourceName = name;
@@ -80,18 +77,6 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public object Clone( )
-		{
-			return this.MemberwiseClone( );
-		}
-		
-		public Bitmap RenderContent
-		{
-			get {
-				return renderBitmap;
-			}
-		}
-		
 		public string ContentString( )
 		{
 			return byteArray.ToString( );
@@ -99,17 +84,16 @@ namespace MWFResourceEditor
 		
 		protected override void CreateRenderBitmap( )
 		{
-			Graphics gr = CreateNewRenderBitmap( );
-			
-			gr.DrawImage( one_and_zero, thumb_location.X, thumb_location.Y, thumb_size.Width, thumb_size.Height );
-			
-			gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
-			
-			gr.DrawString( "Type: " + byteArray.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
-			
-			gr.DrawString( "Size: " + byteArray.Length, smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
-			
-			gr.Dispose( );
+			using ( Graphics gr = CreateNewRenderBitmap( ) )
+			{
+				gr.DrawImage( one_and_zero, thumb_location.X, thumb_location.Y, thumb_size.Width, thumb_size.Height );
+				
+				gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
+				
+				gr.DrawString( "Type: " + byteArray.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
+				
+				gr.DrawString( "Size: " + byteArray.Length, smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
+			}
 		}
 	}
 }

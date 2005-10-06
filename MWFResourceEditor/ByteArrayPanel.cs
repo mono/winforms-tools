@@ -42,7 +42,7 @@ namespace MWFResourceEditor
 			| System.Windows.Forms.AnchorStyles.Left )
 			| System.Windows.Forms.AnchorStyles.Right ) ) );
 			textBox.Size = new Size( 586, 180 );
-			textBox.ScrollBars = ScrollBars.Vertical | ScrollBars.Horizontal;
+//			textBox.ScrollBars = ScrollBars.Vertical;
 			textBox.Font = new Font( FontFamily.GenericMonospace, 8 );
 			
 			Controls.Add( textBox );
@@ -84,13 +84,17 @@ namespace MWFResourceEditor
 		{
 			bool new_line = false;
 			
+			int show_how_many_bytes = byteArray.Length > 1024 ? 1024 : byteArray.Length;
+			
 			StringBuilder back_string = back_string = new StringBuilder( 19 );
 			
 			sb_hex.Append( "00000000  " );
 			
-			for ( int i = 0; i < byteArray.Length; i++ )
+			for ( int i = 0; i < show_how_many_bytes; i++ )
 			{
-				sb_text.Append( Convert.ToChar( byteArray[ i ] ) );
+				char c = Convert.ToChar( byteArray[ i ] );
+				
+				sb_text.Append( c );
 				
 				if ( new_line )
 				{
@@ -109,8 +113,8 @@ namespace MWFResourceEditor
 				
 				sb_hex.Append( byteArray[ i ].ToString( "X2" ) + " " );
 				
-				if ( byteArray[ i ] != 9 && byteArray[ i ] != 10 && byteArray[ i ] != 13 )
-					back_string.Append( Convert.ToChar( byteArray[ i ] ) );
+				if ( Char.IsLetterOrDigit( c ) )
+					back_string.Append( c );
 				else
 					back_string.Append( "." );
 				

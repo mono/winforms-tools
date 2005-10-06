@@ -6,12 +6,10 @@ using System.Drawing;
 
 namespace MWFResourceEditor
 {
-	public class ResourceImage : ResourceBase, IResource, IResourceRenderer
+	public class ResourceImage : ResourceBase, IResource
 	{
 		private Image image = null;
-		
-		public ResourceImage( )
-		{}
+		private Image old_image = null;
 		
 		public ResourceImage( string name, Image image )
 		{
@@ -26,18 +24,17 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public Object Clone( )
-		{
-			return this.MemberwiseClone( );
-		}
-		
 		public Image Image
 		{
 			set {
+				if ( old_image != null )
+					old_image.Dispose( );
+				
 				if ( image != null )
 					all_data_for_rendering_available = 1;
 				
 				image = value;
+				old_image = image;
 				
 				all_data_for_rendering_available++;
 				
@@ -47,13 +44,6 @@ namespace MWFResourceEditor
 			
 			get {
 				return image;
-			}
-		}
-		
-		public Bitmap RenderContent
-		{
-			get {
-				return renderBitmap;
 			}
 		}
 		
@@ -69,35 +59,35 @@ namespace MWFResourceEditor
 		
 		protected override void CreateRenderBitmap( )
 		{
-			Graphics gr = CreateNewRenderBitmap( );
-			
-			if ( image.Width > thumb_size.Width || image.Height > thumb_size.Height )
+			using ( Graphics gr = CreateNewRenderBitmap( ) )
 			{
-				Bitmap reformated = new Bitmap( thumb_size.Width, thumb_size.Height );
+				if ( image.Width >= thumb_size.Width || image.Height >= thumb_size.Height )
+				{
+					int new_width = image.Width < thumb_size.Width - 1 ? image.Width : thumb_size.Width - 1;
+					int new_height = image.Height < thumb_size.Height - 1 ? image.Height : thumb_size.Height - 1;
+					
+					using ( Image thumbnail = GetThumbNail( image , new_width, new_height ) )
+					{
+						int x = ( thumb_size.Width / 2 ) - ( thumbnail.Width / 2 ) - 1;
+						int y = ( thumb_size.Height / 2 ) - ( thumbnail.Height / 2 );
+						
+						gr.DrawImage( thumbnail, thumb_location.X + x, thumb_location.Y + y );
+					}
+				}
+				else
+				{
+					int x = ( thumb_size.Width / 2 ) - ( image.Width / 2 );
+					int y = ( thumb_size.Height / 2 ) - ( image.Height / 2 );
+					
+					gr.DrawImage( image, thumb_location.X + x, thumb_location.Y + y );
+				}
 				
-				Graphics gb = Graphics.FromImage( reformated );
+				gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
 				
-				gb.DrawImage( image, new Rectangle( 0, 0, thumb_size.Width, thumb_size.Height ), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel );
+				gr.DrawString( "Type: " + image.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
 				
-				gr.DrawImage( reformated, thumb_location.X, thumb_location.Y );
-				
-				gb.Dispose( );
+				gr.DrawString( "Size: " + ContentString( ), smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
 			}
-			else
-			{
-				int x = ( thumb_size.Width / 2 ) - ( image.Width / 2 );
-				int y = ( thumb_size.Height / 2 ) - ( image.Height / 2 );
-				
-				gr.DrawImage( image, x, y );
-			}
-			
-			gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
-			
-			gr.DrawString( "Type: " + image.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
-			
-			gr.DrawString( "Size: " + ContentString( ), smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
-			
-			gr.Dispose( );
 		}
 	}
 }

@@ -51,6 +51,13 @@ namespace MWFResourceEditor
 		
 		private string fullFileName = "New Resource.resx";
 		
+		private string last_load_resx_directory = String.Empty;
+		private string last_add_files_directory = String.Empty;
+		private string last_save_as_directory = String.Empty;
+		
+		private bool fileSaved = true;
+		private bool first_time_saved = false;
+		
 		public MainForm( )
 		{
 			InitializeComponent( );
@@ -170,16 +177,16 @@ namespace MWFResourceEditor
 			menuItemAddColor.Click += new EventHandler( OnMenuItemAddColorClick );
 			
 			// menuItemDash2
-			menuItemDash2.Index = 11;
+			menuItemDash2.Index = 12;
 			menuItemDash2.Text = "-";
 			
 			// menuItemDelete
-			menuItemDelete.Index = 12;
+			menuItemDelete.Index = 13;
 			menuItemDelete.Text = "&Delete";
 			menuItemDelete.Click += new EventHandler( OnMenuItemDeleteClick );
 			
 			// menuItemCopy
-			menuItemCopy.Index = 13;
+			menuItemCopy.Index = 14;
 			menuItemCopy.Text = "&Copy";
 			menuItemCopy.Click += new EventHandler( OnMenuItemCopyClick );
 			
@@ -267,7 +274,7 @@ namespace MWFResourceEditor
 			ClientSize = new Size( 592, 541 );
 			
 			Menu = mainMenu;
-			Text = "MWF ResourceEditor";
+			Text = "New Resource.resx";
 			
 			Controls.Add( contentControl );
 			Controls.Add( splitter );
@@ -281,11 +288,49 @@ namespace MWFResourceEditor
 			resourceListBox.SelectedIndexChanged += new EventHandler( OnResourceListBoxSelectedIndexChanged );
 		}
 		
+		public bool FileSaved
+		{
+			set {
+				fileSaved = value;
+				
+				if ( !fileSaved )
+				{
+					string title = Text;
+					
+					if ( !title.EndsWith( " *" ) )
+					{
+						title += " *";
+						
+						Text = title;
+					}
+				}
+				else
+				{
+					string title = Text;
+					
+					if ( title.EndsWith( " *" ) )
+					{
+						title = title.Replace( " *", "" );
+						
+						Text = title;
+					}
+				}
+			}
+			
+			get {
+				return fileSaved;
+			}
+		}
+		
 		void OnMenuItemNewClick( object sender, EventArgs e )
 		{
 			fullFileName = "New Resource.resx";
 			
 			Text = fullFileName;
+			
+			FileSaved = false;
+			
+			first_time_saved = false;
 			
 			ResetListBox( );
 		}
@@ -309,19 +354,25 @@ namespace MWFResourceEditor
 		
 		void OnMenuItemLoadClick( object sender, EventArgs e )
 		{
-			ResetListBox( );
-			
 			OpenFileDialog ofd = new OpenFileDialog( );
 			ofd.CheckFileExists = true;
 			ofd.Filter = "resx files (*.resx)|*.resx|All files (*.*)|*.*";
 			
+			if ( last_load_resx_directory != String.Empty )
+				if ( Directory.Exists( last_load_resx_directory ) )
+					ofd.InitialDirectory = last_load_resx_directory;
+			
 			if ( DialogResult.OK == ofd.ShowDialog( ) )
 			{
+				ResetListBox( );
+				
 				resXResourceReader = new ResXResourceReader( ofd.FileName );
 				
 				Text = Path.GetFileName( ofd.FileName );
 				
 				fullFileName = ofd.FileName;
+				
+				last_load_resx_directory = Path.GetDirectoryName( ofd.FileName );
 				
 				FillListBox( );
 				
@@ -334,25 +385,53 @@ namespace MWFResourceEditor
 			if ( resourceListBox.Items.Count == 0 )
 				return;
 			
+			if ( !first_time_saved )
+			{
+				OnMenuItemSaveAsClick( sender, e );
+				return;
+			}
+			
 			File.Delete( fullFileName );
 			
 			WriteResourceFile( );
+			
+			FileSaved = true;
 		}
 		
 		void OnMenuItemSaveAsClick( object sender, EventArgs e )
 		{
+			if ( resourceListBox.Items.Count == 0 )
+				return;
+			
 			SaveFileDialog sfd = new SaveFileDialog( );
 			sfd.CheckFileExists = true;
 			sfd.DefaultExt = "resx";
 			sfd.Filter = "resx files (*.resx)|*.resx|All files (*.*)|*.*";
+			
+			if ( last_save_as_directory == String.Empty )
+				if ( last_load_resx_directory != String.Empty )
+					last_save_as_directory = last_load_resx_directory;
+			
+			if ( last_save_as_directory != String.Empty )
+				if ( Directory.Exists( last_save_as_directory ) )
+					sfd.InitialDirectory = last_save_as_directory;
 			
 			if ( DialogResult.OK == sfd.ShowDialog( ) )
 			{
 				fullFileName = sfd.FileName;
 				
 				Text = Path.GetFileName( fullFileName );
+					
+				last_save_as_directory = Path.GetDirectoryName( sfd.FileName );
+				
+				if ( File.Exists( fullFileName ) )
+					File.Delete( fullFileName );
 				
 				WriteResourceFile( );
+				
+				FileSaved = true;
+				
+				first_time_saved = true;
 			}
 		}
 		
@@ -428,7 +507,29 @@ namespace MWFResourceEditor
 		
 		void OnMenuItemExitClick( object sender, EventArgs e )
 		{
-			Close( );
+			if ( !FileSaved )
+			{
+				string filename_short = Path.GetFileName( fullFileName );
+				
+				DialogResult result = MessageBox.Show( "File " + filename_short + " not saved.\n\n" + "Save ?", 
+								      "Exit...", 
+								      MessageBoxButtons.YesNoCancel, 
+								      MessageBoxIcon.Question );
+				
+				switch ( result )
+				{
+					case DialogResult.Yes:
+						OnMenuItemSaveClick( null, EventArgs.Empty );
+						if ( FileSaved )
+							Close( );
+						break;
+					case DialogResult.No:
+						Close( );
+						break;
+					default:
+						break;
+				}
+			}
 		}
 		
 		void OnMenuItemAddStringClick( object sender, EventArgs e )
@@ -453,6 +554,8 @@ namespace MWFResourceEditor
 				resourceListBox.TopIndex = 0;
 				
 				resourceListBox.Invalidate( );
+				
+				FileSaved = false;
 			}
 		}
 		
@@ -463,6 +566,10 @@ namespace MWFResourceEditor
 			ofd.Multiselect = true;
 			
 			ofd.Filter = "Images (*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|Icons (*.ico)|*.ico|Cursors (*.cur)|*.cur|All files (*.*)|*.*";
+			
+			if ( last_add_files_directory != String.Empty )
+				if ( Directory.Exists( last_add_files_directory ) )
+					ofd.InitialDirectory = last_add_files_directory;
 			
 			if ( DialogResult.OK == ofd.ShowDialog( ) )
 			{
@@ -481,7 +588,8 @@ namespace MWFResourceEditor
 							resourceListBox.AddResourceDirect( resIcon );
 							resourceListBox.EndUpdate( );
 						}
-						else if ( upper_file_name.EndsWith( ".CUR" ) ) {
+						else if ( upper_file_name.EndsWith( ".CUR" ) )
+						{
 							ResourceCursor resCursor = new ResourceCursor( Path.GetFileName( file_name ), new Cursor( file_name ) );
 							
 							resourceListBox.BeginUpdate( );
@@ -489,7 +597,7 @@ namespace MWFResourceEditor
 							resourceListBox.EndUpdate( );
 						}
 						else
-							// images
+						// images
 						if ( upper_file_name.EndsWith( ".PNG" ) || upper_file_name.EndsWith( ".JPG" ) ||
 						    upper_file_name.EndsWith( ".GIF" ) || upper_file_name.EndsWith( ".BMP" ) )
 						{
@@ -526,6 +634,8 @@ namespace MWFResourceEditor
 				
 				if ( ofd.FileNames.Length > 0 )
 				{
+					last_add_files_directory = Path.GetDirectoryName( ofd.FileNames[0] );
+					
 					if ( resourceListBox.Items.Count > 0 )
 					{
 						resourceListBox.SelectedIndex = 0;
@@ -536,6 +646,8 @@ namespace MWFResourceEditor
 						
 						resourceListBox.Invalidate( );
 					}
+					
+					FileSaved = false;
 				}
 			}
 		}
@@ -551,6 +663,8 @@ namespace MWFResourceEditor
 				resourceListBox.AddResource( resource_name, cd.Color );
 				
 				resourceListBox.Invalidate( );
+				
+				FileSaved = false;
 			}
 		}
 		
@@ -562,6 +676,8 @@ namespace MWFResourceEditor
 			resourceListBox.RemoveResource( (IResource)resourceListBox.SelectedItems[ 0 ] );
 			
 			resourceListBox.Invalidate( );
+			
+			FileSaved = false;
 		}
 		
 		void OnMenuItemCopyClick( object sender, EventArgs e )
@@ -587,6 +703,8 @@ namespace MWFResourceEditor
 			resourceListBox.AddResourceDirect( resourceCopy );
 			
 			resourceListBox.Invalidate( );
+			
+			FileSaved = false;
 		}
 		
 		void OnMenuItemRenameClick( object sender, EventArgs e )
@@ -604,6 +722,8 @@ namespace MWFResourceEditor
 				resourceListBox.RenameResource( resource, new_resource_name );
 				
 				resourceListBox.Invalidate( );
+				
+				FileSaved = false;
 			}
 		}
 		
@@ -645,9 +765,10 @@ namespace MWFResourceEditor
 					ResourceString resString = (ResourceString)resource;
 					textPanel.ContentTextBox.Text = resString.Text;
 					break;
-
+					
 				case ResourceType.TypeCursor:
-					if ( activePanel != imagePanel ) {
+					if ( activePanel != imagePanel )
+					{
 						activePanel.Hide( );
 						contentControl.Controls.Remove( activePanel );
 						contentControl.Controls.Add( imagePanel );
@@ -660,7 +781,7 @@ namespace MWFResourceEditor
 					imagePanel.Image = resCursor.RenderContent;
 					break;
 					
-
+					
 				case ResourceType.TypeIcon:
 					if ( activePanel != imagePanel )
 					{
@@ -775,6 +896,8 @@ namespace MWFResourceEditor
 				resourceListBox.EndUpdate( );
 				
 				resourceListBox.Invalidate( );
+				
+				FileSaved = false;
 			}
 		}
 		

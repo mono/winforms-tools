@@ -8,12 +8,9 @@ using System.Windows.Forms;
 
 namespace MWFResourceEditor
 {
-	public class ResourceCursor : ResourceBase, IResource, IResourceRenderer
+	public class ResourceCursor : ResourceBase, IResource
 	{
 		private Cursor cursor = null;
-		
-		public ResourceCursor( )
-		{}
 		
 		public ResourceCursor( string name, Cursor cursor )
 		{
@@ -26,11 +23,6 @@ namespace MWFResourceEditor
 			get {
 				return ResourceType.TypeCursor;
 			}
-		}
-		
-		public object Clone( )
-		{
-			return this.MemberwiseClone( );
 		}
 		
 		public Cursor Cursor
@@ -51,13 +43,6 @@ namespace MWFResourceEditor
 				return cursor;
 			}
 		}
-
-		public Bitmap RenderContent
-		{
-			get {
-				return renderBitmap;
-			}
-		}
 		
 		public string ContentString( )
 		{
@@ -71,27 +56,26 @@ namespace MWFResourceEditor
 		
 		protected override void CreateRenderBitmap( )
 		{
-			Graphics gr = CreateNewRenderBitmap( );
-			
-			if ( cursor.Size.Width > thumb_size.Width || cursor.Size.Height > thumb_size.Height )
+			using ( Graphics gr = CreateNewRenderBitmap( ) )
 			{
-				cursor.DrawStretched(gr, new Rectangle(thumb_location.X, thumb_location.Y, thumb_size.Width, thumb_size.Height));
-			}
-			else
-			{
-				int x = ( thumb_size.Width / 2 ) - ( cursor.Size.Width / 2 );
-				int y = ( thumb_size.Height / 2 ) - ( cursor.Size.Height / 2 );
+				if ( cursor.Size.Width > thumb_size.Width || cursor.Size.Height > thumb_size.Height )
+				{
+					cursor.DrawStretched( gr, new Rectangle( thumb_location.X, thumb_location.Y, thumb_size.Width, thumb_size.Height ) );
+				}
+				else
+				{
+					int x = ( thumb_size.Width / 2 ) - ( cursor.Size.Width / 2 );
+					int y = ( thumb_size.Height / 2 ) - ( cursor.Size.Height / 2 );
+					
+					cursor.Draw( gr, new Rectangle( x, y, cursor.Size.Width, cursor.Size.Height ) );
+				}
 				
-				cursor.Draw(gr, new Rectangle(x, y, cursor.Size.Width, cursor.Size.Height));
+				gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
+				
+				gr.DrawString( "Type: " + cursor.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
+				
+				gr.DrawString( "Size: " + ContentString( ), smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
 			}
-			
-			gr.DrawString( "Name: " + resource_name, smallFont, solidBrushBlack, content_text_x_pos, content_name_y_pos );
-			
-			gr.DrawString( "Type: " + cursor.GetType( ), smallFont, solidBrushBlack, content_text_x_pos, content_type_y_pos );
-			
-			gr.DrawString( "Size: " + ContentString( ), smallFont, solidBrushBlack, content_text_x_pos, content_content_y_pos );
-			
-			gr.Dispose( );
 		}
 	}
 }

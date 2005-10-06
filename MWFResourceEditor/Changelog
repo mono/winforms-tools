@@ -1,3 +1,21 @@
+2005-10-06  Alexander Olk  <alex.olk@googlemail.com>
+
+	* AboutDialog.cs, ByteArrayPanel.cs, ImagePanel.cs, MainForm.cs,
+	  ResourceBase.cs, ResourceByteArray.cs, ResourceColor.cs, ResourceCursor.cs,
+	  ResourceIcon.cs, ResourceImage.cs, ResourceListBox.cs, ResourceString.cs,
+	  TextPanel.cs:
+	  - Use "Dispose" or "using" for graphics objects wherever it is possible
+	  - Disable TextBox ScrollBars until they are fixed
+	  - Reduce number of shown bytes in ByteArrayPanel to 1024
+	  - Draw Button in ImagePanel after PictureBox
+	  - Give a little hint in the titlebar if a file isn't saved
+	  - On exit ask if an unsaved file should be saved
+	  - During runtime FileDialog remembers the recently used path now and doesn't
+	    delete the currently used resources if you press cancel in OpenFileDialog 
+	  - Moved some code from the ResourceXXX classes to ResourceBase
+	  - Use Image.GetThumbnailImage to get a thumbnail for an image or an icon
+	  - Keep aspect ratio in thumbnails
+
 2005-09-21  Alexander Olk  <xenomorph2@onlinehome.de>
 
 	* ResourceListBox.cs: Add cursor here, too

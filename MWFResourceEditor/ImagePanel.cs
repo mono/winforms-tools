@@ -12,6 +12,7 @@ namespace MWFResourceEditor
 	{
 		private Image image;
 		private Icon icon;
+		private Icon old_icon;
 		private string imageOrIconName;
 		private PictureBox pictureBox;
 		private Button button;
@@ -27,6 +28,7 @@ namespace MWFResourceEditor
 			SuspendLayout( );
 			
 			BackColor = Color.LightSlateGray;
+			pictureBox.BackColor = Color.LightSlateGray;
 			
 			button.Location = new Point( 10, 10 );
 			button.Size = new Size( 120, 21 );
@@ -36,8 +38,8 @@ namespace MWFResourceEditor
 			Dock = DockStyle.Fill;
 			DockPadding.All = 5;
 			
-			Controls.Add( button );
 			Controls.Add( pictureBox );
+			Controls.Add( button );
 			
 			ResumeLayout( false );
 		}
@@ -72,6 +74,11 @@ namespace MWFResourceEditor
 		{
 			set {
 				icon = value;
+				
+				if ( old_icon != null )
+					old_icon.Dispose();
+				
+				old_icon = icon;
 				
 				pictureBox.Image = icon.ToBitmap( );
 				pictureBox.Size = pictureBox.Image.Size;

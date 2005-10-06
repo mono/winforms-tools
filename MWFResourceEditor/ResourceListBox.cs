@@ -14,6 +14,9 @@ namespace MWFResourceEditor
 		
 		private static int newResourceCounter = 1;
 		
+		private SolidBrush lightBlueBrush = new SolidBrush( Color.LightBlue );
+		private SolidBrush beigeBrush = new SolidBrush( Color.Beige );
+		
 		public ResourceListBox( )
 		{
 			Size = new Size( 500, 300 );
@@ -29,9 +32,9 @@ namespace MWFResourceEditor
 				IResourceRenderer renderer = (IResourceRenderer)Items[ e.Index ];
 				
 				if ( ( e.State & DrawItemState.Selected ) == DrawItemState.Selected )
-					e.Graphics.FillRectangle( new SolidBrush( Color.LightBlue ), e.Bounds );
+					e.Graphics.FillRectangle( lightBlueBrush, e.Bounds );
 				else
-					e.Graphics.FillRectangle( new SolidBrush( Color.Beige ), e.Bounds );
+					e.Graphics.FillRectangle( beigeBrush, e.Bounds );
 				
 				e.Graphics.DrawImage( renderer.RenderContent, e.Bounds.X + 3, e.Bounds.Y + 1 );
 				

@@ -83,31 +83,40 @@ namespace MWFResourceEditor
 			
 			protected override void OnPaint( PaintEventArgs pea )
 			{
-				base.OnPaint( pea );
-				
-				Bitmap bmp = new Bitmap( pea.ClipRectangle.Width, pea.ClipRectangle.Height, pea.Graphics );
-				Graphics gr = Graphics.FromImage( bmp );
-				
-				if ( formsDrawn )
+				using ( Bitmap bmp = new Bitmap( pea.ClipRectangle.Width, pea.ClipRectangle.Height, pea.Graphics ) )
 				{
-					gr.DrawString( "Managed", paintFont, shadowBrush, new Point( 75, 15 ) );
-					gr.DrawString( "Windows", paintFont, shadowBrush, new Point( 75, 65 ) );
-					gr.DrawString( "Forms", paintFont, shadowBrush, new Point( 75, 115 ) );
-					
-					gr.DrawString( "Resource Editor", smallFont, new SolidBrush( Color.Black ), new Point( 80, 185 ) );
-					
-					managedPaintBrush = new SolidBrush( Color.Red );
-					windowsPaintBrush = new SolidBrush( Color.Red );
-					formsPaintBrush = new SolidBrush( Color.Red );
+					using ( Graphics gr = Graphics.FromImage( bmp ) )
+					{
+						if ( formsDrawn )
+						{
+							gr.DrawString( "Managed", paintFont, shadowBrush, new Point( 75, 15 ) );
+							gr.DrawString( "Windows", paintFont, shadowBrush, new Point( 75, 65 ) );
+							gr.DrawString( "Forms", paintFont, shadowBrush, new Point( 75, 115 ) );
+							
+							gr.DrawString( "Resource Editor", smallFont, new SolidBrush( Color.Black ), new Point( 80, 185 ) );
+							
+							if ( managedPaintBrush != null )
+								managedPaintBrush.Dispose();
+							managedPaintBrush = new SolidBrush( Color.Red );
+							if ( windowsPaintBrush != null )
+								windowsPaintBrush.Dispose();
+							windowsPaintBrush = new SolidBrush( Color.Red );
+							if ( formsPaintBrush != null )
+								formsPaintBrush.Dispose();
+							formsPaintBrush = new SolidBrush( Color.Red );
+						}
+						
+						gr.DrawString( "Managed", paintFont, managedPaintBrush, new Point( 70, 10 ) );
+						
+						gr.DrawString( "Windows", paintFont, windowsPaintBrush, new Point( 70, 60 ) );
+						
+						gr.DrawString( "Forms", paintFont, formsPaintBrush, new Point( 70, 110 ) );
+						
+						pea.Graphics.DrawImage( bmp, pea.ClipRectangle.X, pea.ClipRectangle.Y );
+					}
 				}
 				
-				gr.DrawString( "Managed", paintFont, managedPaintBrush, new Point( 70, 10 ) );
-				
-				gr.DrawString( "Windows", paintFont, windowsPaintBrush, new Point( 70, 60 ) );
-				
-				gr.DrawString( "Forms", paintFont, formsPaintBrush, new Point( 70, 110 ) );
-				
-				pea.Graphics.DrawImage( bmp, pea.ClipRectangle.X, pea.ClipRectangle.Y );
+				base.OnPaint( pea );
 			}
 			
 			protected override void OnVisibleChanged( EventArgs e )
@@ -125,6 +134,8 @@ namespace MWFResourceEditor
 				if ( !managedDrawn )
 				{
 					paintColor = Color.FromArgb( counter++, Color.Red );
+					if ( managedPaintBrush != null )
+						managedPaintBrush.Dispose();
 					managedPaintBrush = new SolidBrush( paintColor );
 					if ( counter == alphaMax )
 					{
@@ -136,6 +147,8 @@ namespace MWFResourceEditor
 				if ( !windowsDrawn )
 				{
 					paintColor = Color.FromArgb( counter++, Color.Red );
+					if ( windowsPaintBrush != null )
+						windowsPaintBrush.Dispose();
 					windowsPaintBrush = new SolidBrush( paintColor );
 					if ( counter == alphaMax )
 					{
@@ -147,6 +160,8 @@ namespace MWFResourceEditor
 				if ( !formsDrawn )
 				{
 					paintColor = Color.FromArgb( counter++, Color.Red );
+					if ( formsPaintBrush != null )
+						formsPaintBrush.Dispose();
 					formsPaintBrush = new SolidBrush( paintColor );
 					if ( counter == alphaMax )
 					{

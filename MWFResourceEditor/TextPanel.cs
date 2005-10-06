@@ -34,7 +34,7 @@ namespace MWFResourceEditor
 			contentTextBox.Multiline = true;
 			contentTextBox.AcceptsReturn = true;
 			contentTextBox.AcceptsTab = true;
-			contentTextBox.ScrollBars = ScrollBars.Vertical | ScrollBars.Horizontal;
+//			contentTextBox.ScrollBars = ScrollBars.Both;
 			
 			acceptButton.Text = "Accept Changes";
 			acceptButton.Location = new Point( 3, 3 );
