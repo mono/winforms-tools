@@ -1,3 +1,22 @@
+2005-10-09  Alexander Olk  <alex.olk@googlemail.com>
+
+	* Makefile: Updated
+	* AboutDialog.cs: Use a Control instead of a Panel
+	* ColorPanel.cs, ImagePanel.cs, TextPanel.cs: Added IPanel interface
+	* IResource.cs: Removed interface IClonable, added Value
+	* MainForm.cs: 
+	  - Added second Splitter
+	  - Added ResourceTreeView
+	  - Exit if there are no resources
+	  - New resources are now created with System.Activator.CreateInstance
+	  - Fix for copy and paste
+	* ResourceBase.cs: Removed IClonable interface
+	* ResourceByteArray.cs, ResourceColor.cs, ResourceCursor.cs, ResourceIcon.cs,
+	  ResourceImage.cs, ResourceString.cs: Added Value property
+	* ResourceListBox.cs: Updated to handle more than one ListBox.ObjectCollection
+	* IPanel.cs, ResourceTreeNode.cs, ResourceTreeView.cs: Added
+	* ResourceType.cs: Added All and None types
+
 2005-10-06  Alexander Olk  <alex.olk@googlemail.com>
 
 	* AboutDialog.cs, ByteArrayPanel.cs, ImagePanel.cs, MainForm.cs,
