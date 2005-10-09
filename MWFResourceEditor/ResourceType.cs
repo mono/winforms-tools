@@ -7,6 +7,8 @@ namespace MWFResourceEditor
 {
 	public enum ResourceType
 	{
+		None,
+		All,
 		TypeImage,
 		TypeIcon,
 		TypeCursor,

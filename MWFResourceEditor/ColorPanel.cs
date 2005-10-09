@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace MWFResourceEditor
 {
-	public class ColorPanel : Panel
+	public class ColorPanel : Panel, IPanel
 	{
 		private Color color;
 		private Button button;
@@ -60,6 +60,13 @@ namespace MWFResourceEditor
 				label.Location = new Point( ( Width / 2 ) - ( label.Width / 2 ), ( Height / 2 ) - ( panel.Height / 2 ) - 30 );
 			}
 			
+			get {
+				return color;
+			}
+		}
+		
+		public object Value
+		{
 			get {
 				return color;
 			}

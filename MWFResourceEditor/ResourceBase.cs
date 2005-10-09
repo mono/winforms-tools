@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace MWFResourceEditor
 {
-	public abstract class ResourceBase : IResourceRenderer, ICloneable
+	public abstract class ResourceBase : IResourceRenderer
 	{
 		protected string resource_name = null;
 		
@@ -73,11 +73,6 @@ namespace MWFResourceEditor
 		}
 		
 		protected abstract void CreateRenderBitmap( );
-		
-		public Object Clone( )
-		{
-			return this.MemberwiseClone( );
-		}
 		
 		public bool DummyThumbnailCallback( )
 		{

@@ -57,6 +57,13 @@ namespace MWFResourceEditor
 			return imagesize;
 		}
 		
+		public Object Value
+		{
+			get {
+				return image;
+			}
+		}
+		
 		protected override void CreateRenderBitmap( )
 		{
 			using ( Graphics gr = CreateNewRenderBitmap( ) )

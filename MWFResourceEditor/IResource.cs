@@ -5,10 +5,13 @@ using System;
 
 namespace MWFResourceEditor
 {
-	public interface IResource : ICloneable
+	public interface IResource
 	{
 		string ResourceName
 		{ get; set; }
+		
+		object Value
+		{ get; }
 		
 		ResourceType ResourceType
 		{ get; }

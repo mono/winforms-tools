@@ -8,7 +8,7 @@ using System.IO;
 
 namespace MWFResourceEditor
 {
-	public class ImagePanel : Panel
+	public class ImagePanel : Panel, IPanel
 	{
 		private Image image;
 		private Icon icon;
@@ -16,6 +16,7 @@ namespace MWFResourceEditor
 		private string imageOrIconName;
 		private PictureBox pictureBox;
 		private Button button;
+		private object value_internal = null;
 		
 		private MainForm parentForm;
 		
@@ -48,6 +49,7 @@ namespace MWFResourceEditor
 		{
 			set {
 				image = value;
+				value_internal = image;
 				
 				pictureBox.Image = value;
 				pictureBox.Size = image.Size;
@@ -74,9 +76,10 @@ namespace MWFResourceEditor
 		{
 			set {
 				icon = value;
+				value_internal = icon;
 				
 				if ( old_icon != null )
-					old_icon.Dispose();
+					old_icon.Dispose( );
 				
 				old_icon = icon;
 				
@@ -87,6 +90,13 @@ namespace MWFResourceEditor
 			
 			get {
 				return icon;
+			}
+		}
+		
+		public object Value
+		{
+			get {
+				return value_internal;
 			}
 		}
 		

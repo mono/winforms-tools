@@ -82,6 +82,14 @@ namespace MWFResourceEditor
 			return byteArray.ToString( );
 		}
 		
+		public Object Value
+		{
+			get {
+				
+				return byteArray;
+			}
+		}
+		
 		protected override void CreateRenderBitmap( )
 		{
 			using ( Graphics gr = CreateNewRenderBitmap( ) )

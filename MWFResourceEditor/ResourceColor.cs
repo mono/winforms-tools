@@ -47,6 +47,13 @@ namespace MWFResourceEditor
 			return color.ToString( );
 		}
 		
+		public Object Value
+		{
+			get {
+				return color;
+			}
+		}
+		
 		protected override void CreateRenderBitmap( )
 		{
 			using ( Graphics gr = CreateNewRenderBitmap( ) )

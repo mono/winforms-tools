@@ -47,6 +47,13 @@ namespace MWFResourceEditor
 			return text;
 		}
 		
+		public Object Value
+		{
+			get {
+				return text;
+			}
+		}
+		
 		protected override void CreateRenderBitmap( )
 		{
 			using ( Graphics gr = CreateNewRenderBitmap( ) )

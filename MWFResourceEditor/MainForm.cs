@@ -25,7 +25,6 @@ namespace MWFResourceEditor
 		private MenuItem menuItemAddFiles;
 		private MenuItem menuItemAddColor;
 		private MenuItem menuItemCopy;
-//		private MenuItem menuItemCut;
 		private MenuItem menuItemDelete;
 		private MenuItem menuItemPaste;
 		private MenuItem menuItemDash3;
@@ -41,13 +40,15 @@ namespace MWFResourceEditor
 		private ByteArrayPanel byteArrayPanel;
 		private ResourceListBox resourceListBox;
 		private ContextMenu contextMenu;
-		private Splitter splitter;
+		private Splitter mainSplitter;
+		private Splitter resourceSplitter;
+		private ResourceTreeView resourceTreeView;
 		
 		private ResXResourceReader resXResourceReader;
 		
 		private Panel activePanel;
 		
-		private IResource resourceCopy;
+		private IResource resourceCopy = null;
 		
 		private string fullFileName = "New Resource.resx";
 		
@@ -65,7 +66,8 @@ namespace MWFResourceEditor
 		
 		private void InitializeComponent( )
 		{
-			splitter = new Splitter( );
+			mainSplitter = new Splitter( );
+			resourceSplitter = new Splitter( );
 			
 			menuItemFile = new MenuItem( );
 			menuItemNew = new MenuItem( );
@@ -82,7 +84,6 @@ namespace MWFResourceEditor
 			menuItemDash2 = new MenuItem( );
 			menuItemDelete = new MenuItem( );
 			menuItemCopy = new MenuItem( );
-//			menuItemCut = new MenuItem( );
 			menuItemPaste = new MenuItem( );
 			menuItemDash3 = new MenuItem( );
 			menuItemRename = new MenuItem( );
@@ -101,6 +102,8 @@ namespace MWFResourceEditor
 			resourcePanel = new Panel( );
 			
 			resourceListBox = new ResourceListBox( );
+			resourceTreeView = new ResourceTreeView( resourceListBox );
+			resourceListBox.ResourceTreeView = resourceTreeView;
 			
 			contentControl = new Control( );
 			contentControl.SuspendLayout( );
@@ -156,7 +159,6 @@ namespace MWFResourceEditor
 								     menuItemDash2,
 								     menuItemDelete,
 								     menuItemCopy,
-//								menuItemCut,
 								     menuItemPaste,
 								     menuItemRename } );
 			menuItemResources.Text = "Resources";
@@ -189,11 +191,6 @@ namespace MWFResourceEditor
 			menuItemCopy.Index = 14;
 			menuItemCopy.Text = "&Copy";
 			menuItemCopy.Click += new EventHandler( OnMenuItemCopyClick );
-			
-			// menuItemCut
-//			menuItemCut.Index = 14;
-//			menuItemCut.Text = "Cut";
-//			menuItemCut.Click += new EventHandler( OnMenuItemCutClick );
 			
 			// menuItemPaste
 			menuItemPaste.Index = 15;
@@ -231,24 +228,34 @@ namespace MWFResourceEditor
 //			textPanel.Size = new Size( 592, 213 );
 			
 			// resourceListBox
-			resourceListBox.Location = new Point( 0, 0 );
 			resourceListBox.Size = new Size( 592, 328 );
 			resourceListBox.Dock = DockStyle.Fill;
 			resourceListBox.TabIndex = 0;
 			resourceListBox.ContextMenu = contextMenu;
 			
+			// resourceTreeView
+			resourceTreeView.Dock = DockStyle.Left;
+			resourceTreeView.Size = new Size( 150, 328 );
+			
 			// resourcePanel
 			resourcePanel.Controls.Add( resourceListBox );
+			resourcePanel.Controls.Add( resourceSplitter );
+			resourcePanel.Controls.Add( resourceTreeView );
 			resourcePanel.Dock = DockStyle.Top;
 			resourcePanel.Location = new Point( 0, 0 );
 			resourcePanel.Size = new Size( 592, 328 );
 			resourcePanel.TabIndex = 0;
 			resourcePanel.DockPadding.All = 5;
 			
-			// splitter
-			splitter.Dock = DockStyle.Top;
-			splitter.MinExtra = 213;
-			splitter.MinSize = 328;
+			// mainSplitter
+			mainSplitter.Dock = DockStyle.Top;
+			mainSplitter.MinExtra = 213;
+			mainSplitter.MinSize = 328;
+			
+			// resourceSplitter
+			resourceSplitter.Dock = DockStyle.Left;
+			resourceSplitter.MinExtra = 150;
+			resourceSplitter.MinSize = 150;
 			
 			// contentControl
 			contentControl.Location = new Point( 0, 328 );
@@ -277,7 +284,7 @@ namespace MWFResourceEditor
 			Text = "New Resource.resx";
 			
 			Controls.Add( contentControl );
-			Controls.Add( splitter );
+			Controls.Add( mainSplitter );
 			Controls.Add( resourcePanel );
 			
 			contentControl.ResumeLayout( false );
@@ -332,11 +339,13 @@ namespace MWFResourceEditor
 			
 			first_time_saved = false;
 			
-			ResetListBox( );
+			ResetListBoxAndTreeView( );
 		}
 		
-		private void ResetListBox( )
+		private void ResetListBoxAndTreeView( )
 		{
+			resourceTreeView.Clear( );
+			
 			if ( resourceListBox.Items.Count > 0 )
 				resourceListBox.ClearResources( );
 			
@@ -364,7 +373,7 @@ namespace MWFResourceEditor
 			
 			if ( DialogResult.OK == ofd.ShowDialog( ) )
 			{
-				ResetListBox( );
+				ResetListBoxAndTreeView( );
 				
 				resXResourceReader = new ResXResourceReader( ofd.FileName );
 				
@@ -374,7 +383,7 @@ namespace MWFResourceEditor
 				
 				last_load_resx_directory = Path.GetDirectoryName( ofd.FileName );
 				
-				FillListBox( );
+				FillListBoxAndTreeView( );
 				
 				resXResourceReader.Close( );
 			}
@@ -421,7 +430,7 @@ namespace MWFResourceEditor
 				fullFileName = sfd.FileName;
 				
 				Text = Path.GetFileName( fullFileName );
-					
+				
 				last_save_as_directory = Path.GetDirectoryName( sfd.FileName );
 				
 				if ( File.Exists( fullFileName ) )
@@ -439,12 +448,12 @@ namespace MWFResourceEditor
 		{
 			ResXResourceWriter rxrw = new ResXResourceWriter( fullFileName );
 			
-			foreach ( IResource res_abstract in resourceListBox.Items )
+			foreach ( IResource res_abstract in resourceListBox.AllItems )
 			{
 				switch ( res_abstract.ResourceType )
 				{
 					case ResourceType.TypeImage:
-						ResourceImage resImage = (ResourceImage)res_abstract;
+						ResourceImage resImage = res_abstract as ResourceImage;
 						
 						if ( resImage.Image == null )
 							continue;
@@ -453,7 +462,7 @@ namespace MWFResourceEditor
 						break;
 						
 					case ResourceType.TypeString:
-						ResourceString resStr = (ResourceString)res_abstract;
+						ResourceString resStr = res_abstract as ResourceString;
 						
 						if ( resStr == null )
 							continue;
@@ -462,7 +471,7 @@ namespace MWFResourceEditor
 						break;
 						
 					case ResourceType.TypeCursor:
-						ResourceCursor resCursor = (ResourceCursor)res_abstract;
+						ResourceCursor resCursor = res_abstract as ResourceCursor;
 						
 						if ( resCursor == null )
 							continue;
@@ -471,7 +480,7 @@ namespace MWFResourceEditor
 						break;
 						
 					case ResourceType.TypeIcon:
-						ResourceIcon resIcon = (ResourceIcon)res_abstract;
+						ResourceIcon resIcon = res_abstract as ResourceIcon;
 						
 						if ( resIcon == null )
 							continue;
@@ -480,7 +489,7 @@ namespace MWFResourceEditor
 						break;
 						
 					case ResourceType.TypeColor:
-						ResourceColor resColor = (ResourceColor)res_abstract;
+						ResourceColor resColor = res_abstract as ResourceColor;
 						
 						if ( resColor == null )
 							continue;
@@ -489,7 +498,7 @@ namespace MWFResourceEditor
 						break;
 						
 					case ResourceType.TypeByteArray:
-						ResourceByteArray resByteArray = (ResourceByteArray)res_abstract;
+						ResourceByteArray resByteArray = res_abstract as ResourceByteArray;
 						
 						if ( resByteArray == null )
 							continue;
@@ -507,7 +516,9 @@ namespace MWFResourceEditor
 		
 		void OnMenuItemExitClick( object sender, EventArgs e )
 		{
-			if ( !FileSaved )
+			if ( resourceListBox.Items.Count == 0 || FileSaved )
+				Close( );
+			else
 			{
 				string filename_short = Path.GetFileName( fullFileName );
 				
@@ -538,14 +549,12 @@ namespace MWFResourceEditor
 			
 			if ( new_item_string.Length != 0 )
 			{
-				ResourceString resStr = new ResourceString( new_item_string, new_item_string );
+				IResource resource = CreateNewResource( new_item_string, new_item_string );
 				
-				resourceListBox.BeginUpdate( );
 				if ( resourceListBox.Items.Count == 0 )
-					resourceListBox.AddResourceDirect( resStr );
+					resourceListBox.AddResourceDirect( resource );
 				else
-					resourceListBox.InsertResourceDirect( 0, resStr );
-				resourceListBox.EndUpdate( );
+					resourceListBox.InsertResourceDirect( 0, resource );
 				
 				resourceListBox.SelectedIndex = 0;
 				
@@ -582,30 +591,24 @@ namespace MWFResourceEditor
 						// icon
 						if ( upper_file_name.EndsWith( ".ICO" ) )
 						{
-							ResourceIcon resIcon = new ResourceIcon( Path.GetFileName( file_name ), new Icon( file_name ) );
+							IResource resIcon = CreateNewResource( Path.GetFileName( file_name ), new Icon( file_name ) );
 							
-							resourceListBox.BeginUpdate( );
 							resourceListBox.AddResourceDirect( resIcon );
-							resourceListBox.EndUpdate( );
 						}
 						else if ( upper_file_name.EndsWith( ".CUR" ) )
 						{
-							ResourceCursor resCursor = new ResourceCursor( Path.GetFileName( file_name ), new Cursor( file_name ) );
+							IResource resCursor = CreateNewResource( Path.GetFileName( file_name ), new Cursor( file_name ) );
 							
-							resourceListBox.BeginUpdate( );
 							resourceListBox.AddResourceDirect( resCursor );
-							resourceListBox.EndUpdate( );
 						}
 						else
 						// images
 						if ( upper_file_name.EndsWith( ".PNG" ) || upper_file_name.EndsWith( ".JPG" ) ||
 						    upper_file_name.EndsWith( ".GIF" ) || upper_file_name.EndsWith( ".BMP" ) )
 						{
-							ResourceImage resImage = new ResourceImage( Path.GetFileName( file_name ), Image.FromFile( file_name )  );
+							IResource resImage = CreateNewResource( Path.GetFileName( file_name ), Image.FromFile( file_name )  );
 							
-							resourceListBox.BeginUpdate( );
 							resourceListBox.AddResourceDirect( resImage );
-							resourceListBox.EndUpdate( );
 						}
 						else
 						// byte array
@@ -619,11 +622,9 @@ namespace MWFResourceEditor
 								fs.Read( bytes, 0, bytes.Length );
 							}
 							
-							ResourceByteArray resByteArray = new ResourceByteArray( Path.GetFileName( file_name ), bytes );
+							IResource resByteArray = CreateNewResource( Path.GetFileName( file_name ), bytes );
 							
-							resourceListBox.BeginUpdate( );
 							resourceListBox.AddResourceDirect( resByteArray );
-							resourceListBox.EndUpdate( );
 						}
 					}
 					catch (Exception ex)
@@ -634,7 +635,7 @@ namespace MWFResourceEditor
 				
 				if ( ofd.FileNames.Length > 0 )
 				{
-					last_add_files_directory = Path.GetDirectoryName( ofd.FileNames[0] );
+					last_add_files_directory = Path.GetDirectoryName( ofd.FileNames[ 0 ] );
 					
 					if ( resourceListBox.Items.Count > 0 )
 					{
@@ -660,7 +661,9 @@ namespace MWFResourceEditor
 			{
 				string resource_name = resourceListBox.UniqueResourceName( "Color" );
 				
-				resourceListBox.AddResource( resource_name, cd.Color );
+				IResource res_color = CreateNewResource( resource_name, cd.Color );
+				
+				resourceListBox.AddResourceDirect( res_color );
 				
 				resourceListBox.Invalidate( );
 				
@@ -687,19 +690,14 @@ namespace MWFResourceEditor
 			
 			IResource res_abstract = (IResource)resourceListBox.SelectedItems[ 0 ];
 			
-			resourceCopy = (IResource)res_abstract.Clone( );
-			
-			resourceCopy.ResourceName = resourceListBox.UniqueResourceName( resourceCopy.ResourceName );
+			resourceCopy = CreateNewResource( resourceListBox.UniqueResourceName( res_abstract.ResourceName ), res_abstract.Value );
 		}
-		
-//		void OnMenuItemCutClick( object sender, EventArgs e )
-//		{
-//			if ( resourceListBox.SelectedItems.Count == 0 )
-//				return;
-//		}
 		
 		void OnMenuItemPasteClick( object sender, EventArgs e )
 		{
+			if ( resourceCopy == null )
+				return;
+			
 			resourceListBox.AddResourceDirect( resourceCopy );
 			
 			resourceListBox.Invalidate( );
@@ -838,7 +836,7 @@ namespace MWFResourceEditor
 			ad.ShowDialog( );
 		}
 		
-		void FillListBox( )
+		void FillListBoxAndTreeView( )
 		{
 			resourceListBox.BeginUpdate( );
 			
@@ -846,6 +844,10 @@ namespace MWFResourceEditor
 				resourceListBox.AddResource( de.Key.ToString( ), de.Value );
 			
 			resourceListBox.EndUpdate( );
+			
+			resourceTreeView.Fill( );
+			
+			resourceListBox.ShowNode( ResourceType.All );
 			
 			if ( resourceListBox.Items.Count > 0 )
 				resourceListBox.SelectedIndex = 0;
@@ -858,38 +860,7 @@ namespace MWFResourceEditor
 				resourceListBox.BeginUpdate( );
 				
 				IResource oldRes = (IResource)resourceListBox.SelectedItems[ 0 ];
-				IResource newRes = null;
-				
-				switch ( oldRes.ResourceType )
-				{
-					case ResourceType.TypeString:
-						ResourceString newresString = new ResourceString( oldRes.ResourceName, textPanel.ContentTextBox.Text );
-						newRes = newresString;
-						break;
-						
-					case ResourceType.TypeImage:
-						ResourceImage newresImage = new ResourceImage( oldRes.ResourceName, imagePanel.Image );
-						newRes = newresImage;
-						break;
-						
-					case ResourceType.TypeIcon:
-						ResourceIcon newresIcon = new ResourceIcon( oldRes.ResourceName, imagePanel.Icon );
-						newRes = newresIcon;
-						break;
-						
-					case ResourceType.TypeCursor:
-						ResourceCursor newresCursor = new ResourceCursor( oldRes.ResourceName, imagePanel.Cursor );
-						newRes = newresCursor;
-						break;
-						
-					case ResourceType.TypeColor:
-						ResourceColor newresColor = new ResourceColor( oldRes.ResourceName, colorPanel.Color );
-						newRes = newresColor;
-						break;
-						
-					default:
-						break;
-				}
+				IResource newRes = CreateNewResource( oldRes.ResourceName, ( (IPanel)activePanel ).Value );
 				
 				resourceListBox.ReplaceResource( oldRes, newRes );
 				
@@ -899,6 +870,32 @@ namespace MWFResourceEditor
 				
 				FileSaved = false;
 			}
+		}
+		
+		private IResource CreateNewResource( string name, object content )
+		{
+			Type new_type;
+			
+			if ( content is Bitmap )
+				new_type = typeof( ResourceImage );
+			else
+			if ( content is String )
+				new_type = typeof( ResourceString );
+			else
+			if ( content is Icon )
+				new_type = typeof( ResourceIcon );
+			else
+			if ( content is Cursor )
+				new_type = typeof( ResourceCursor );
+			else
+			if ( content is Color )
+				new_type = typeof( ResourceColor );
+			else
+				new_type = typeof( ResourceByteArray );
+			
+			IResource resource = Activator.CreateInstance( new_type, new object[] { name, content } ) as IResource;
+			
+			return resource;
 		}
 		
 		[STAThread]

@@ -10,23 +10,23 @@ namespace MWFResourceEditor
 	public class AboutDialog : Form
 	{
 		private Button okButton;
-		private PaintPanel paintPanel;
+		private PaintControl paintControl;
 		
 		public AboutDialog( )
 		{
 			okButton = new Button( );
-			paintPanel = new PaintPanel( );
+			paintControl = new PaintControl( );
 			
 			SuspendLayout( );
 			
 			okButton.Text = "OK";
+			SuspendLayout( );
 			okButton.Location = new Point( 170, 260 );
 			okButton.Click += new EventHandler( OnOkButtonClick );
 			
-			paintPanel.BorderStyle = BorderStyle.Fixed3D;
-			paintPanel.Location = new Point( 10, 10 );
-			paintPanel.Size = new Size( 380, 240 );
-			paintPanel.BackColor = Color.White;
+			paintControl.Location = new Point( 10, 10 );
+			paintControl.Size = new Size( 380, 240 );
+			paintControl.BackColor = Color.White;
 			
 			Text = "About MWFResourceEditor...";
 			
@@ -37,7 +37,7 @@ namespace MWFResourceEditor
 			AcceptButton = okButton;
 			
 			Controls.Add( okButton );
-			Controls.Add( paintPanel );
+			Controls.Add( paintControl );
 			
 			ResumeLayout( false );
 		}
@@ -47,7 +47,7 @@ namespace MWFResourceEditor
 			Close( );
 		}
 		
-		internal class PaintPanel : Panel
+		internal class PaintControl : Control
 		{
 			private System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 			
@@ -57,15 +57,17 @@ namespace MWFResourceEditor
 			private SolidBrush windowsPaintBrush;
 			private SolidBrush formsPaintBrush;
 			private SolidBrush shadowBrush;
+			private SolidBrush backgroundBrush;
 			private Color paintColor;
 			private int counter = 0;
 			private bool managedDrawn = false;
 			private bool windowsDrawn = false;
 			private bool formsDrawn = false;
 			
-			private const int alphaMax = 32;
+			private const int alphaMax = 255;
+			private const int alpha_step = 32;
 			
-			public PaintPanel( )
+			public PaintControl( )
 			{
 				paintFont = new Font( FontFamily.GenericMonospace, 36, FontStyle.Regular );
 				smallFont = new Font( FontFamily.GenericSansSerif, 18, FontStyle.Italic );
@@ -76,9 +78,10 @@ namespace MWFResourceEditor
 				windowsPaintBrush = new SolidBrush( paintColor );
 				managedPaintBrush = new SolidBrush( paintColor );
 				formsPaintBrush = new SolidBrush( paintColor );
+				backgroundBrush = new SolidBrush( Color.White );
 				
 				timer.Tick += new EventHandler( OnTimerTick );
-				timer.Interval = 50;
+				timer.Interval = 80;
 			}
 			
 			protected override void OnPaint( PaintEventArgs pea )
@@ -87,6 +90,8 @@ namespace MWFResourceEditor
 				{
 					using ( Graphics gr = Graphics.FromImage( bmp ) )
 					{
+						gr.FillRectangle( backgroundBrush, new Rectangle( 0, 0, bmp.Width, bmp.Height ) );
+						
 						if ( formsDrawn )
 						{
 							gr.DrawString( "Managed", paintFont, shadowBrush, new Point( 75, 15 ) );
@@ -96,13 +101,13 @@ namespace MWFResourceEditor
 							gr.DrawString( "Resource Editor", smallFont, new SolidBrush( Color.Black ), new Point( 80, 185 ) );
 							
 							if ( managedPaintBrush != null )
-								managedPaintBrush.Dispose();
+								managedPaintBrush.Dispose( );
 							managedPaintBrush = new SolidBrush( Color.Red );
 							if ( windowsPaintBrush != null )
-								windowsPaintBrush.Dispose();
+								windowsPaintBrush.Dispose( );
 							windowsPaintBrush = new SolidBrush( Color.Red );
 							if ( formsPaintBrush != null )
-								formsPaintBrush.Dispose();
+								formsPaintBrush.Dispose( );
 							formsPaintBrush = new SolidBrush( Color.Red );
 						}
 						
@@ -115,8 +120,6 @@ namespace MWFResourceEditor
 						pea.Graphics.DrawImage( bmp, pea.ClipRectangle.X, pea.ClipRectangle.Y );
 					}
 				}
-				
-				base.OnPaint( pea );
 			}
 			
 			protected override void OnVisibleChanged( EventArgs e )
@@ -133,11 +136,12 @@ namespace MWFResourceEditor
 			{
 				if ( !managedDrawn )
 				{
-					paintColor = Color.FromArgb( counter++, Color.Red );
+					paintColor = Color.FromArgb( counter, Color.Red );
+					counter += alpha_step;
 					if ( managedPaintBrush != null )
-						managedPaintBrush.Dispose();
+						managedPaintBrush.Dispose( );
 					managedPaintBrush = new SolidBrush( paintColor );
-					if ( counter == alphaMax )
+					if ( counter >= alphaMax )
 					{
 						managedDrawn = true;
 						counter = 0;
@@ -146,11 +150,12 @@ namespace MWFResourceEditor
 				else
 				if ( !windowsDrawn )
 				{
-					paintColor = Color.FromArgb( counter++, Color.Red );
+					paintColor = Color.FromArgb( counter, Color.Red );
+					counter += alpha_step;
 					if ( windowsPaintBrush != null )
-						windowsPaintBrush.Dispose();
+						windowsPaintBrush.Dispose( );
 					windowsPaintBrush = new SolidBrush( paintColor );
-					if ( counter == alphaMax )
+					if ( counter >= alphaMax )
 					{
 						windowsDrawn = true;
 						counter = 0;
@@ -159,11 +164,12 @@ namespace MWFResourceEditor
 				else
 				if ( !formsDrawn )
 				{
-					paintColor = Color.FromArgb( counter++, Color.Red );
+					paintColor = Color.FromArgb( counter, Color.Red );
+					counter += alpha_step;
 					if ( formsPaintBrush != null )
-						formsPaintBrush.Dispose();
+						formsPaintBrush.Dispose( );
 					formsPaintBrush = new SolidBrush( paintColor );
-					if ( counter == alphaMax )
+					if ( counter >= alphaMax )
 					{
 						formsDrawn = true;
 						timer.Stop( );
@@ -172,7 +178,6 @@ namespace MWFResourceEditor
 				
 				
 				Invalidate( );
-				Update( );
 			}
 		}
 	}

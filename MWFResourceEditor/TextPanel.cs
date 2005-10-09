@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace MWFResourceEditor
 {
-	public class TextPanel : Panel
+	public class TextPanel : Panel, IPanel
 	{
 		private TextBox contentTextBox;
 		private Button acceptButton;
@@ -55,6 +55,13 @@ namespace MWFResourceEditor
 			
 			get {
 				return contentTextBox;
+			}
+		}
+		
+		public object Value
+		{
+			get {
+				return contentTextBox.Text;
 			}
 		}
 		
