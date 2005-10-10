@@ -1,3 +1,8 @@
+2005-10-10  Jackson Harper  <jackson@ximian.com>
+
+	* ResourceListBox.cs: Don't crash on click if there are no
+	items selected.
+
 2005-10-09  Alexander Olk  <alex.olk@googlemail.com>
 
 	* Makefile: Updated

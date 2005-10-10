@@ -305,9 +305,10 @@ namespace MWFResourceEditor
 		
 		protected override void OnClick( EventArgs e )
 		{
-			if ( SelectedIndex != old_selected_index )
+			if ( SelectedIndex != -1 && SelectedIndex != old_selected_index )
 			{
 				old_selected_index = SelectedIndex;
+				Console.WriteLine ("Selected Index:   " + SelectedIndex);
 				resourceTreeView.ShowItem( Items[ SelectedIndex ] as IResource, showType );
 			}
 			base.OnClick( e );
