@@ -344,7 +344,7 @@ namespace MWFResourceEditor
 		
 		private void ResetListBoxAndTreeView( )
 		{
-			resourceTreeView.Clear( );
+			resourceTreeView.ClearResources( );
 			
 			if ( resourceListBox.Items.Count > 0 )
 				resourceListBox.ClearResources( );

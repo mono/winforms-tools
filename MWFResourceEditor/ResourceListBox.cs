@@ -200,6 +200,8 @@ namespace MWFResourceEditor
 				Items.Add( resource );
 			
 			EndUpdate( );
+			
+			resourceTreeView.AddResourceDirect( resource );
 		}
 		
 		public void InsertResourceDirect( int index, IResource resource )
@@ -218,6 +220,8 @@ namespace MWFResourceEditor
 			allItems.Insert( 0, resource );
 			
 			EndUpdate( );
+			
+			resourceTreeView.AddResourceDirect( resource );
 		}
 		
 		public void RemoveResource( IResource resource )
@@ -231,6 +235,8 @@ namespace MWFResourceEditor
 			allItems.Remove( resource );
 			
 			EndUpdate( );
+			
+			resourceTreeView.RemoveResource( resource );
 		}
 		
 		public void RenameResource( IResource resource, string new_name )
@@ -308,7 +314,7 @@ namespace MWFResourceEditor
 			if ( SelectedIndex != -1 && SelectedIndex != old_selected_index )
 			{
 				old_selected_index = SelectedIndex;
-				Console.WriteLine ("Selected Index:   " + SelectedIndex);
+				Console.WriteLine( "Selected Index:   " + SelectedIndex );
 				resourceTreeView.ShowItem( Items[ SelectedIndex ] as IResource, showType );
 			}
 			base.OnClick( e );

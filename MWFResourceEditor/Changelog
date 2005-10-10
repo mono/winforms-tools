@@ -1,3 +1,10 @@
+2005-10-10  Alexander Olk  <alex.olk@googlemail.com>
+
+	* MainForm.cs: Rename ResourceTreeView Clear to ClearResources
+	* ResourceListBox.cs: When removing or adding resources directly
+	  update also ResourceTreeView
+	* ResourceTreeView.cs: Some refactoring, added AddResourceDirect, RemoveResource
+
 2005-10-10  Jackson Harper  <jackson@ximian.com>
 
 	* ResourceListBox.cs: Don't crash on click if there are no
