@@ -29,10 +29,10 @@ namespace MWFResourceEditor
 				{
 					int x_counter = 0;
 					
+					Random random = new Random( );
+					
 					while ( x_counter < thumb_size.Width )
 					{
-						Random random = new Random( );
-						
 						string what = random.Next( 2 ) == 1 ? "1" : "0";
 						
 						gr.DrawString( what, font, solidBrushBlack, x_counter, y_counter );

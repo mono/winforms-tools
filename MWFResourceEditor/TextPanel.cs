@@ -12,11 +12,11 @@ namespace MWFResourceEditor
 		private TextBox contentTextBox;
 		private Button acceptButton;
 		
-		private MainForm parentForm;
+		private ResourceContentControl parentControl;
 		
-		public TextPanel( MainForm parentForm )
+		public TextPanel( ResourceContentControl parentControl )
 		{
-			this.parentForm = parentForm;
+			this.parentControl = parentControl;
 			
 			contentTextBox = new TextBox( );
 			acceptButton = new Button( );
@@ -27,18 +27,16 @@ namespace MWFResourceEditor
 			DockPadding.All = 5;
 			
 			contentTextBox.Location = new Point( 3, 30 );
-			ContentTextBox.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-			| System.Windows.Forms.AnchorStyles.Left )
-			| System.Windows.Forms.AnchorStyles.Right ) ) );
-			contentTextBox.Size = new Size( 586, 180 );
 			contentTextBox.Multiline = true;
 			contentTextBox.AcceptsReturn = true;
 			contentTextBox.AcceptsTab = true;
-//			contentTextBox.ScrollBars = ScrollBars.Both;
+			contentTextBox.TextChanged += new EventHandler( OnContentTextBoxTextChanged );
+			contentTextBox.ScrollBars = ScrollBars.Both;
 			
 			acceptButton.Text = "Accept Changes";
 			acceptButton.Location = new Point( 3, 3 );
 			acceptButton.Size = new Size( 150, 23 );
+			acceptButton.Enabled = false;
 			acceptButton.Click += new EventHandler( OnAcceptButtonClick );
 			
 			Controls.Add( contentTextBox );
@@ -47,27 +45,39 @@ namespace MWFResourceEditor
 			ResumeLayout( false );
 		}
 		
-		public TextBox ContentTextBox
+		public string ResourceText
 		{
 			set {
-				contentTextBox = value;
+				contentTextBox.Text = value;
+				acceptButton.Enabled = false;
 			}
 			
-			get {
-				return contentTextBox;
-			}
-		}
-		
-		public object Value
-		{
 			get {
 				return contentTextBox.Text;
 			}
 		}
 		
+		public void ClearResource( )
+		{
+			contentTextBox.Clear( );
+			acceptButton.Enabled = false;
+		}
+		
 		void OnAcceptButtonClick( object sender, EventArgs e )
 		{
-			parentForm.ChangeResourceContent( );
+			parentControl.Change_Resource_Content( contentTextBox.Text );
+			acceptButton.Enabled = false;
+		}
+		
+		void OnContentTextBoxTextChanged( Object sender, EventArgs e )
+		{
+			acceptButton.Enabled = true;
+		}
+		
+		protected override void OnSizeChanged( EventArgs e )
+		{
+			contentTextBox.Size = new Size( Width - 10, Height - 40 );
+			base.OnSizeChanged( e );
 		}
 	}
 }

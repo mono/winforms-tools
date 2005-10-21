@@ -1,3 +1,10 @@
+2005-10-21  Alexander Olk  <alex.olk@googlemail.com>
+
+	* ResourceContentControl.cs, ResourceControl.cs, ResourceList.cs,
+	  ResourceSelectionControl.cs: Added
+
+	* Many bug fixes, refactoring and make the application work on MS.NET
+
 2005-10-10  Alexander Olk  <alex.olk@googlemail.com>
 
 	* MainForm.cs: Rename ResourceTreeView Clear to ClearResources

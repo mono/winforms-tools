@@ -5,13 +5,14 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+// TODO replace resource
+
 namespace MWFResourceEditor
 {
 	public class ResourceTreeView : TreeView
 	{
 		private ResourceListBox resourceListBox;
 		
-		ResourceTreeNode all = new ResourceTreeNode( "All", ResourceType.None, ResourceType.All );
 		ResourceTreeNode image = new ResourceTreeNode( "Images", ResourceType.None, ResourceType.TypeImage );
 		ResourceTreeNode tstring = new ResourceTreeNode( "Strings", ResourceType.None, ResourceType.TypeString );
 		ResourceTreeNode icon = new ResourceTreeNode( "Icons", ResourceType.None, ResourceType.TypeIcon );
@@ -19,16 +20,17 @@ namespace MWFResourceEditor
 		ResourceTreeNode cursor = new ResourceTreeNode( "Cursors", ResourceType.None, ResourceType.TypeCursor );
 		ResourceTreeNode bytearray = new ResourceTreeNode( "Byte Arrays", ResourceType.None, ResourceType.TypeByteArray );
 		
+		private ResourceList resourceList = ResourceList.Instance;
+		
 		public ResourceTreeView( ResourceListBox resourceListBox )
 		{
 			this.resourceListBox = resourceListBox;
 			
 			BorderStyle = BorderStyle.Fixed3D;
-			ShowLines = true;			
+			ShowLines = true;
 			
 			ItemHeight = 21;
 			
-			Nodes.Add( all );			
 			Nodes.Add( image );
 			Nodes.Add( tstring );
 			Nodes.Add( icon );
@@ -37,39 +39,12 @@ namespace MWFResourceEditor
 			Nodes.Add( bytearray );
 		}
 		
-		public void RemoveResource( IResource resource )
-		{
-			int counter = 0;
-			
-			BeginUpdate( );
-			foreach ( ResourceTreeNode pnode in Nodes )
-			{
-				ResourceTreeNode to_delete = null;
-				to_delete = GetNode( resource.ResourceName, pnode );
-				
-				if ( to_delete != null )
-				{
-					Console.WriteLine( "Found the node and removing the node from parentNodes.Nodes..." );
-					Console.WriteLine( "Well, this is a FIXME" );
-					pnode.Nodes.Remove( to_delete );
-					counter++;
-				}
-				
-				if ( counter == 2 )
-					break;
-			}
-			EndUpdate( );
-		}
-		
 		public void ShowItem( IResource iResource, ResourceType showType )
 		{
 			ResourceTreeNode to_select = null;
 			
 			switch ( showType )
 			{
-				case ResourceType.All:
-					to_select = GetNode( iResource.ResourceName, all );
-					break;
 				case ResourceType.TypeImage:
 					to_select = GetNode( iResource.ResourceName, image );
 					break;
@@ -95,7 +70,7 @@ namespace MWFResourceEditor
 			if ( to_select != null )
 			{
 				BeginUpdate( );
-				this.CollapseAll( );
+				CollapseAll( );
 				to_select.EnsureVisible( );
 				SelectedNode = to_select;
 				EndUpdate( );
@@ -111,55 +86,42 @@ namespace MWFResourceEditor
 			return null;
 		}
 		
-		public void Fill( )
-		{
-			ClearResources( );
-			
-			BeginUpdate( );
-			
-			foreach ( IResource resource in resourceListBox.AllItems )
-				AddToNode( resource );
-			
-			EndUpdate( );
-		}
-		
 		private void AddToNode( IResource resource )
 		{
 			switch ( resource.ResourceType )
 			{
 				case ResourceType.TypeImage:
 					image.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeImage, ResourceType.None ) );
-					all.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeImage, ResourceType.None ) );
 					break;
 				case ResourceType.TypeByteArray:
 					bytearray.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeByteArray, ResourceType.None ) );
-					all.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeByteArray, ResourceType.None ) );
 					break;
 				case ResourceType.TypeString:
 					tstring.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeString, ResourceType.None ) );
-					all.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeString, ResourceType.None ) );
 					break;
 				case ResourceType.TypeColor:
 					color.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeColor, ResourceType.None ) );
-					all.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeColor, ResourceType.None ) );
 					break;
 				case ResourceType.TypeCursor:
 					cursor.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeCursor, ResourceType.None ) );
-					all.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeCursor, ResourceType.None ) );
 					break;
 				case ResourceType.TypeIcon:
 					icon.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeIcon, ResourceType.None ) );
-					all.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeIcon, ResourceType.None ) );
 					break;
 				default:
 					break;
 			}
 		}
 		
+		public void FillNodes( )
+		{
+			foreach ( IResource resource in resourceList.Items )
+				AddToNode( resource );
+		}
+		
 		public void ClearResources( )
 		{
 			BeginUpdate( );
-			all.Nodes.Clear( );
 			image.Nodes.Clear( );
 			tstring.Nodes.Clear( );
 			icon.Nodes.Clear( );
@@ -176,19 +138,46 @@ namespace MWFResourceEditor
 			EndUpdate( );
 		}
 		
-		protected override void OnClick( EventArgs e )
+		public void RemoveResource( IResource resource )
 		{
-			ResourceTreeNode selected = SelectedNode as ResourceTreeNode;
+			int counter = 0;
+			
+			BeginUpdate( );
+			foreach ( ResourceTreeNode pnode in Nodes )
+			{
+				ResourceTreeNode to_delete = null;
+				to_delete = GetNode( resource.ResourceName, pnode );
+				
+				if ( to_delete != null )
+				{
+//					Console.WriteLine( "Found the node and removing the node from parentNodes.Nodes..." );
+//					Console.WriteLine( "Well, this is a FIXME" );
+					pnode.Nodes.Remove( to_delete );
+					counter++;
+				}
+				
+				if ( counter == 2 )
+					break;
+			}
+			EndUpdate( );
+		}
+		
+		protected override void OnAfterSelect( TreeViewEventArgs e )
+		{
+			ResourceTreeNode selected = e.Node as ResourceTreeNode;
 			
 			if ( selected != null )
 			{
 				if ( selected.CommandType != ResourceType.None )
+				{
 					resourceListBox.ShowNode( selected.CommandType );
+					selected.Expand( );
+				}
 				else
 					resourceListBox.ShowNode( selected.Text, selected.ResourceType );
 			}
 			
-			base.OnClick( e );
+			base.OnAfterSelect( e );
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace MWFResourceEditor
 		protected static int content_type_y_pos = 16;
 		protected static int content_content_y_pos = 29;
 		
-		protected static Point thumb_location = new Point( 3, 3 );
+		protected static Point thumb_location = new Point( 3, 5 );
 		protected static Size thumb_size = new Size( 42, 42 );
 		protected static Size renderBitmap_size = new Size( 300, 50 );
 		

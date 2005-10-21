@@ -9,6 +9,7 @@ namespace MWFResourceEditor
 	public class ResourceIcon : ResourceBase, IResource
 	{
 		private Icon icon = null;
+		private Icon old_icon = null;
 		
 		public ResourceIcon( string name, Icon icon )
 		{
@@ -26,10 +27,14 @@ namespace MWFResourceEditor
 		public Icon Icon
 		{
 			set {
+				if ( old_icon != null )
+					old_icon.Dispose( );
+				
 				if ( icon != null )
 					all_data_for_rendering_available = 1;
 				
 				icon = value;
+				old_icon = icon;
 				
 				all_data_for_rendering_available++;
 				

@@ -12,24 +12,20 @@ namespace MWFResourceEditor
 	{
 		private Image image;
 		private Icon icon;
-		private Icon old_icon;
-		private string imageOrIconName;
+		private Cursor cursor;
 		private PictureBox pictureBox;
 		private Button button;
-		private object value_internal = null;
+		private Bitmap old_bmp;
 		
-		private MainForm parentForm;
+		private ResourceContentControl parentControl;
 		
-		public ImagePanel( MainForm parentForm )
+		public ImagePanel( ResourceContentControl parentControl )
 		{
-			this.parentForm = parentForm;
+			this.parentControl = parentControl;
 			
 			button = new Button( );
 			pictureBox = new PictureBox( );
 			SuspendLayout( );
-			
-			BackColor = Color.LightSlateGray;
-			pictureBox.BackColor = Color.LightSlateGray;
 			
 			button.Location = new Point( 10, 10 );
 			button.Size = new Size( 120, 21 );
@@ -49,7 +45,6 @@ namespace MWFResourceEditor
 		{
 			set {
 				image = value;
-				value_internal = image;
 				
 				pictureBox.Image = value;
 				pictureBox.Size = image.Size;
@@ -61,27 +56,10 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public string ImageOrIconName
-		{
-			set {
-				imageOrIconName = value;
-			}
-			
-			get {
-				return imageOrIconName;
-			}
-		}
-		
 		public Icon Icon
 		{
 			set {
 				icon = value;
-				value_internal = icon;
-				
-				if ( old_icon != null )
-					old_icon.Dispose( );
-				
-				old_icon = icon;
 				
 				pictureBox.Image = icon.ToBitmap( );
 				pictureBox.Size = pictureBox.Image.Size;
@@ -93,11 +71,33 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public object Value
+		public new Cursor Cursor
 		{
-			get {
-				return value_internal;
+			set {
+				cursor = value;
+				
+				if ( old_bmp != null )
+					old_bmp.Dispose( );
+				
+				Bitmap bmp = new Bitmap( cursor.Size.Width, cursor.Size.Height );
+				
+				using ( Graphics gr = Graphics.FromImage( bmp ) )
+					cursor.Draw( gr, new Rectangle( 0, 0, bmp.Width, bmp.Height ) );
+				
+				old_bmp = bmp;
+				
+				pictureBox.Image = bmp;
+				pictureBox.Size = pictureBox.Image.Size;
+				pictureBox.Location = new Point( ( Width / 2 ) - ( cursor.Size.Width / 2 ), ( Height / 2 ) - ( cursor.Size.Height / 2 ) );
 			}
+		}
+		
+		public void ClearResource( )
+		{
+			image = null;
+			icon = null;
+			cursor = null;
+			pictureBox.Image = null;
 		}
 		
 		protected override void OnSizeChanged( EventArgs e )
@@ -113,7 +113,7 @@ namespace MWFResourceEditor
 			OpenFileDialog ofd = new OpenFileDialog( );
 			ofd.CheckFileExists = true;
 			
-			ofd.Filter = "Images (*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|Icons (*.ico)|*.ico|All files (*.*)|*.*";
+			ofd.Filter = "Images (*.png;*.jpg;*.gif;*.bmp)|*.png;*.jpg;*.gif;*.bmp|Icons (*.ico)|*.ico|Cursors (*.cur)|*.cur|All files (*.*)|*.*";
 			
 			if ( DialogResult.OK == ofd.ShowDialog( ) )
 			{
@@ -126,22 +126,26 @@ namespace MWFResourceEditor
 					{
 						Icon = new Icon( ofd.FileName );
 						
-						imageOrIconName = Path.GetFileName( ofd.FileName );
+						parentControl.Change_Resource_Content( icon );
+					}
+					else
+					if ( upper_file_name.EndsWith( ".CUR" ) )
+					{
+						Cursor = new Cursor( ofd.FileName );
 						
-						parentForm.ChangeResourceContent( );
+						parentControl.Change_Resource_Content( cursor );
 					}
 					else
 					{
 						Image = Image.FromFile( ofd.FileName );
 						
-						imageOrIconName = Path.GetFileName( ofd.FileName );
-						
-						parentForm.ChangeResourceContent( );
+						parentControl.Change_Resource_Content( image );
 					}
 				}
 				catch (Exception ex)
 				{
 					Console.WriteLine( "File {0} not found.", ofd.FileName );
+					Console.WriteLine( ex );
 				}
 			}
 		}

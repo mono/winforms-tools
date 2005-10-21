@@ -5,20 +5,21 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Text;
+using System.Collections.Specialized;
 
 namespace MWFResourceEditor
 {
-	public class ByteArrayPanel : Panel
+	public class ByteArrayPanel : Panel, IPanel
 	{
 		private Byte[] byteArray;
 		
 		private CheckBox textHexCheckBox;
 		private TextBox textBox;
 		
-		private StringBuilder sb_text;
-		private StringBuilder sb_hex;
+		private StringCollection sc_text = new StringCollection();
+		private StringCollection sc_hex = new StringCollection();
 		
-		public ByteArrayPanel( MainForm parentForm )
+		public ByteArrayPanel( ResourceContentControl parentControl )
 		{
 			textHexCheckBox = new CheckBox( );
 			textBox = new TextBox( );
@@ -38,18 +39,14 @@ namespace MWFResourceEditor
 			textBox.Location = new Point( 3, 30 );
 			textBox.Multiline = true;
 			textBox.ReadOnly = true;
-			textBox.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-			| System.Windows.Forms.AnchorStyles.Left )
-			| System.Windows.Forms.AnchorStyles.Right ) ) );
-			textBox.Size = new Size( 586, 180 );
-//			textBox.ScrollBars = ScrollBars.Vertical;
+			textBox.ScrollBars = ScrollBars.Vertical;
 			textBox.Font = new Font( FontFamily.GenericMonospace, 8 );
+			textBox.WordWrap = true;
 			
 			Controls.Add( textBox );
 			Controls.Add( textHexCheckBox );
 			
 			ResumeLayout( false );
-			
 		}
 		
 		public Byte[] ByteArray
@@ -57,12 +54,12 @@ namespace MWFResourceEditor
 			set {
 				byteArray = value;
 				
-				sb_text = new StringBuilder( byteArray.Length );
-				sb_hex = new StringBuilder( byteArray.Length * 4 );
+				sc_text.Clear( );
+				sc_hex.Clear( );
 				
 				GenerateTextAndHexOutput( );
 				
-				textBox.Text = sb_text.ToString( );
+				textBox.Lines = GetLines( textHexCheckBox.Checked ? sc_hex : sc_text );
 			}
 			
 			get {
@@ -70,46 +67,52 @@ namespace MWFResourceEditor
 			}
 		}
 		
+		public void ClearResource( )
+		{
+			byteArray = null;
+			sc_text.Clear( );
+			sc_hex.Clear( );
+			textBox.Clear( );
+		}
+		
 		void OnCheckedChangedTextCheckBox( object sender, EventArgs e )
 		{
 			if ( textHexCheckBox.Checked )
-				textBox.Text = sb_hex.ToString( );
+				textBox.Lines = GetLines( sc_hex );
 			else
-				textBox.Text = sb_text.ToString( );
+				textBox.Lines = GetLines( sc_text );
 			
 			textBox.Invalidate( );
 		}
 		
+		private string[] GetLines( StringCollection sc )
+		{
+			string[] tmp = new string[ sc.Count ];
+			
+			sc.CopyTo( tmp, 0 );
+			
+			return tmp;
+		}
+		
 		private void GenerateTextAndHexOutput( )
 		{
-			bool new_line = false;
+			StringBuilder sb_text = new StringBuilder( );
+			StringBuilder sb_hex = new StringBuilder( );
 			
 			int show_how_many_bytes = byteArray.Length > 1024 ? 1024 : byteArray.Length;
 			
 			StringBuilder back_string = back_string = new StringBuilder( 19 );
+			back_string.Append( "  " );
 			
 			sb_hex.Append( "00000000  " );
 			
+			int counter = 0;
+			
 			for ( int i = 0; i < show_how_many_bytes; i++ )
 			{
+				counter++;
+				
 				char c = Convert.ToChar( byteArray[ i ] );
-				
-				sb_text.Append( c );
-				
-				if ( new_line )
-				{
-					new_line = false;
-					
-					back_string.Append( "\n" );
-					
-					sb_hex.Append( back_string );
-					
-					sb_hex.Append( i.ToString( "X8" ) + "  " );
-					
-					back_string = new StringBuilder( 19 );
-					
-					back_string.Append( "  " );
-				}
 				
 				sb_hex.Append( byteArray[ i ].ToString( "X2" ) + " " );
 				
@@ -118,11 +121,36 @@ namespace MWFResourceEditor
 				else
 					back_string.Append( "." );
 				
-				if ( i > 0 && ( i % 16 ) == 0 )
+				if ( i > 0 && ( counter % 16 ) == 0 )
 				{
-					new_line = true;
+					sb_hex.Append( back_string );
+					
+					back_string = new StringBuilder( 19 );
+					
+					back_string.Append( "  " );
+					
+					sc_hex.Add( sb_hex.ToString( ) );
+					sb_hex = new StringBuilder( );
+					
+					sb_hex.Append( i.ToString( "X8" ) + "  " );
+				}
+				
+				if ( c != '\n' && c != '\r' )
+					sb_text.Append( c );
+				else
+				if ( c == '\n' )
+				{
+					sc_text.Add( sb_text.ToString( ) );
+					sb_text = new StringBuilder( );
 				}
 			}
 		}
+		
+		protected override void OnSizeChanged( EventArgs e )
+		{
+			textBox.Size = new Size( Width - 10, Height - 40 );
+			base.OnSizeChanged( e );
+		}
 	}
 }
+

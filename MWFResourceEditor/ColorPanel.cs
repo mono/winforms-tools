@@ -14,11 +14,11 @@ namespace MWFResourceEditor
 		private Panel panel;
 		private Label label;
 		
-		private MainForm parentForm;
+		private ResourceContentControl parentControl;
 		
-		public ColorPanel( MainForm parentForm )
+		public ColorPanel( ResourceContentControl parentControl )
 		{
-			this.parentForm = parentForm;
+			this.parentControl = parentControl;
 			
 			button = new Button( );
 			panel = new Panel( );
@@ -65,11 +65,9 @@ namespace MWFResourceEditor
 			}
 		}
 		
-		public object Value
+		public void ClearResource( )
 		{
-			get {
-				return color;
-			}
+			Color = Color.Empty;
 		}
 		
 		void OnClickButton( object sender, EventArgs e )
@@ -81,7 +79,7 @@ namespace MWFResourceEditor
 			{
 				color = cd.Color;
 				
-				parentForm.ChangeResourceContent( );
+				parentControl.Change_Resource_Content( color );
 				
 				Invalidate( );
 				Update( );

@@ -73,9 +73,9 @@ namespace MWFResourceEditor
 					int new_width = image.Width < thumb_size.Width - 1 ? image.Width : thumb_size.Width - 1;
 					int new_height = image.Height < thumb_size.Height - 1 ? image.Height : thumb_size.Height - 1;
 					
-					using ( Image thumbnail = GetThumbNail( image , new_width, new_height ) )
+					using ( Bitmap thumbnail = new Bitmap( image , new_width, new_height ) )
 					{
-						int x = ( thumb_size.Width / 2 ) - ( thumbnail.Width / 2 ) - 1;
+						int x = ( thumb_size.Width / 2 ) - ( thumbnail.Width / 2 );
 						int y = ( thumb_size.Height / 2 ) - ( thumbnail.Height / 2 );
 						
 						gr.DrawImage( thumbnail, thumb_location.X + x, thumb_location.Y + y );

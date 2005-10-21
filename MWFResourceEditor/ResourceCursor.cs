@@ -11,6 +11,7 @@ namespace MWFResourceEditor
 	public class ResourceCursor : ResourceBase, IResource
 	{
 		private Cursor cursor = null;
+		private Cursor old_cursor = null;
 		
 		public ResourceCursor( string name, Cursor cursor )
 		{
@@ -28,10 +29,14 @@ namespace MWFResourceEditor
 		public Cursor Cursor
 		{
 			set {
+				if ( old_cursor != null )
+					old_cursor.Dispose( );
+				
 				if ( cursor != null )
 					all_data_for_rendering_available = 1;
 				
 				cursor = value;
+				old_cursor = cursor;
 				
 				all_data_for_rendering_available++;
 				

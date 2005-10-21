@@ -5,8 +5,7 @@ namespace MWFResourceEditor
 {
 	public interface IPanel
 	{
-		object Value
-		{ get; }
+		void ClearResource();
 	}
 }
 
