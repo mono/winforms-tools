@@ -1,3 +1,11 @@
+2005-10-23  Alexander Olk  <alex.olk@googlemail.com>
+
+	* ResourceTreeView.cs: 
+	  - Call resourceListBox.ShowNode only if the treeview has focus
+	    (works well on MS.NET but currently not perfectly on MWF, focus
+	    is handed back to to the calling control to fast)
+	  - Fix for RemoveResource
+
 2005-10-21  Alexander Olk  <alex.olk@googlemail.com>
 
 	* ResourceContentControl.cs, ResourceControl.cs, ResourceList.cs,

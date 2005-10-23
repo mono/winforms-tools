@@ -22,7 +22,7 @@ namespace MWFResourceEditor
 		
 		private ResourceList resourceList = ResourceList.Instance;
 		
-		public ResourceTreeView( ResourceListBox resourceListBox )
+		public ResourceTreeView(ResourceListBox resourceListBox)
 		{
 			this.resourceListBox = resourceListBox;
 			
@@ -31,153 +31,149 @@ namespace MWFResourceEditor
 			
 			ItemHeight = 21;
 			
-			Nodes.Add( image );
-			Nodes.Add( tstring );
-			Nodes.Add( icon );
-			Nodes.Add( color );
-			Nodes.Add( cursor );
-			Nodes.Add( bytearray );
+			Nodes.Add(image);
+			Nodes.Add(tstring);
+			Nodes.Add(icon);
+			Nodes.Add(color);
+			Nodes.Add(cursor);
+			Nodes.Add(bytearray);
 		}
 		
-		public void ShowItem( IResource iResource, ResourceType showType )
+		public void ShowItem(IResource iResource, ResourceType showType)
 		{
 			ResourceTreeNode to_select = null;
 			
-			switch ( showType )
+			switch (showType)
 			{
 				case ResourceType.TypeImage:
-					to_select = GetNode( iResource.ResourceName, image );
+					to_select = GetNode(iResource.ResourceName, image);
 					break;
 				case ResourceType.TypeString:
-					to_select = GetNode( iResource.ResourceName, tstring );
+					to_select = GetNode(iResource.ResourceName, tstring);
 					break;
 				case ResourceType.TypeIcon:
-					to_select = GetNode( iResource.ResourceName, icon );
+					to_select = GetNode(iResource.ResourceName, icon);
 					break;
 				case ResourceType.TypeColor:
-					to_select = GetNode( iResource.ResourceName, color );
+					to_select = GetNode(iResource.ResourceName, color);
 					break;
 				case ResourceType.TypeCursor:
-					to_select = GetNode( iResource.ResourceName, cursor );
+					to_select = GetNode(iResource.ResourceName, cursor);
 					break;
 				case ResourceType.TypeByteArray:
-					to_select = GetNode( iResource.ResourceName, bytearray );
+					to_select = GetNode(iResource.ResourceName, bytearray);
 					break;
 				default:
 					break;
 			}
 			
-			if ( to_select != null )
+			if (to_select != null)
 			{
-				BeginUpdate( );
-				CollapseAll( );
-				to_select.EnsureVisible( );
+				BeginUpdate();
+				CollapseAll();
+				to_select.EnsureVisible();
 				SelectedNode = to_select;
-				EndUpdate( );
+				EndUpdate();
 			}
 		}
 		
-		private ResourceTreeNode GetNode( string name, ResourceTreeNode node )
+		private ResourceTreeNode GetNode(string name, ResourceTreeNode node)
 		{
-			foreach ( ResourceTreeNode rnode in node.Nodes )
-				if ( name == rnode.Text )
+			foreach (ResourceTreeNode rnode in node.Nodes)
+				if (name == rnode.Text)
 					return rnode;
 			
 			return null;
 		}
 		
-		private void AddToNode( IResource resource )
+		private void AddToNode(IResource resource)
 		{
-			switch ( resource.ResourceType )
+			switch (resource.ResourceType)
 			{
 				case ResourceType.TypeImage:
-					image.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeImage, ResourceType.None ) );
+					image.Nodes.Add(new ResourceTreeNode(resource.ResourceName, ResourceType.TypeImage, ResourceType.None));
 					break;
 				case ResourceType.TypeByteArray:
-					bytearray.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeByteArray, ResourceType.None ) );
+					bytearray.Nodes.Add(new ResourceTreeNode(resource.ResourceName, ResourceType.TypeByteArray, ResourceType.None));
 					break;
 				case ResourceType.TypeString:
-					tstring.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeString, ResourceType.None ) );
+					tstring.Nodes.Add(new ResourceTreeNode(resource.ResourceName, ResourceType.TypeString, ResourceType.None));
 					break;
 				case ResourceType.TypeColor:
-					color.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeColor, ResourceType.None ) );
+					color.Nodes.Add(new ResourceTreeNode(resource.ResourceName, ResourceType.TypeColor, ResourceType.None));
 					break;
 				case ResourceType.TypeCursor:
-					cursor.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeCursor, ResourceType.None ) );
+					cursor.Nodes.Add(new ResourceTreeNode(resource.ResourceName, ResourceType.TypeCursor, ResourceType.None));
 					break;
 				case ResourceType.TypeIcon:
-					icon.Nodes.Add( new ResourceTreeNode( resource.ResourceName, ResourceType.TypeIcon, ResourceType.None ) );
+					icon.Nodes.Add(new ResourceTreeNode(resource.ResourceName, ResourceType.TypeIcon, ResourceType.None));
 					break;
 				default:
 					break;
 			}
 		}
 		
-		public void FillNodes( )
+		public void FillNodes()
 		{
-			foreach ( IResource resource in resourceList.Items )
-				AddToNode( resource );
+			foreach (IResource resource in resourceList.Items)
+				AddToNode(resource);
 		}
 		
-		public void ClearResources( )
+		public void ClearResources()
 		{
-			BeginUpdate( );
-			image.Nodes.Clear( );
-			tstring.Nodes.Clear( );
-			icon.Nodes.Clear( );
-			color.Nodes.Clear( );
-			cursor.Nodes.Clear( );
-			bytearray.Nodes.Clear( );
-			EndUpdate( );
+			BeginUpdate();
+			image.Nodes.Clear();
+			tstring.Nodes.Clear();
+			icon.Nodes.Clear();
+			color.Nodes.Clear();
+			cursor.Nodes.Clear();
+			bytearray.Nodes.Clear();
+			EndUpdate();
 		}
 		
-		public void AddResourceDirect( IResource resource )
+		public void AddResourceDirect(IResource resource)
 		{
-			BeginUpdate( );
-			AddToNode( resource );
-			EndUpdate( );
+			BeginUpdate();
+			AddToNode(resource);
+			EndUpdate();
 		}
 		
-		public void RemoveResource( IResource resource )
+		public void RemoveResource(IResource resource)
 		{
-			int counter = 0;
-			
-			BeginUpdate( );
-			foreach ( ResourceTreeNode pnode in Nodes )
+			BeginUpdate();
+			foreach (ResourceTreeNode pnode in Nodes)
 			{
-				ResourceTreeNode to_delete = null;
-				to_delete = GetNode( resource.ResourceName, pnode );
+				ResourceTreeNode to_delete = GetNode(resource.ResourceName, pnode);
 				
-				if ( to_delete != null )
+				if (to_delete != null)
 				{
-//					Console.WriteLine( "Found the node and removing the node from parentNodes.Nodes..." );
-//					Console.WriteLine( "Well, this is a FIXME" );
-					pnode.Nodes.Remove( to_delete );
-					counter++;
-				}
-				
-				if ( counter == 2 )
+					pnode.Nodes.Remove(to_delete);
 					break;
+				}
 			}
-			EndUpdate( );
+			EndUpdate();
 		}
 		
-		protected override void OnAfterSelect( TreeViewEventArgs e )
+		protected override void OnAfterSelect(TreeViewEventArgs e)
 		{
 			ResourceTreeNode selected = e.Node as ResourceTreeNode;
 			
-			if ( selected != null )
+			if (selected != null)
 			{
-				if ( selected.CommandType != ResourceType.None )
+				if (selected.CommandType != ResourceType.None)
 				{
-					resourceListBox.ShowNode( selected.CommandType );
-					selected.Expand( );
+					if ( Focused )
+						resourceListBox.ShowNode(selected.CommandType);
+					selected.Expand();
 				}
 				else
-					resourceListBox.ShowNode( selected.Text, selected.ResourceType );
+				{
+					if ( Focused )
+						resourceListBox.ShowNode(selected.Text, selected.ResourceType);
+				}
 			}
 			
-			base.OnAfterSelect( e );
+			base.OnAfterSelect(e);
 		}
 	}
 }
