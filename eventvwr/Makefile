@@ -8,9 +8,11 @@ export MONO_EVENTLOG_TYPE
 ifeq (net_2_0, $(PROFILE))
 MCS = gmcs
 RESGEN = resgen2
+DEFINE = NET_1_1,NET_2_0,ONLY_2_0
 else
 MCS = mcs
 RESGEN = resgen
+DEFINE = NET_1_1,ONLY_1_1
 endif
 
 IMAGES_RESOURCES = \
@@ -27,11 +29,13 @@ IMAGES_RESOURCES = \
 all: clean eventvwr.exe
 
 eventvwr.exe : $(RESX_RESOURCES) $(IMAGE_RESOURCES)
-	$(MCS) -target:winexe -out:eventvwr.exe \
-		-r:System.Drawing.dll	\
-		-r:System.Windows.Forms.dll	\
+	$(MCS) -target:winexe -out:eventvwr.exe		\
+		-define:$(DEFINE)			\
+		-r:System.Drawing.dll			\
+		-r:System.Windows.Forms.dll		\
 		-win32icon:Resources/eventlog.ico	\
-		@eventvwr.exe.sources	\
+		-warnaserror				\
+		@eventvwr.exe.sources			\
 		@eventvwr.exe.resources
 
 clean:
